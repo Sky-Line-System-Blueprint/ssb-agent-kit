@@ -1,6 +1,6 @@
 # SSB Agent Kit
 
-Cho **agent AI** (Cursor, Claude Code) hỏi thẳng **SSB** — cơ cấu tổ chức (đơn vị DV###, chức danh VT###, cấp bậc), sổ văn bản DOC, biểu mẫu BM, trạng thái hệ thống — mà **không cần f3_builder**. Chỉ đọc. Chỉ dùng Python chuẩn (≥ 3.10), không cài thêm gì.
+Cho **agent AI** (Cursor, Claude Code) hỏi thẳng **SSB** — cơ cấu tổ chức (đơn vị DV###, chức danh VT###, cấp bậc), sổ văn bản DOC, biểu mẫu BM, trạng thái hệ thống. Chỉ đọc. Chỉ dùng Python chuẩn (≥ 3.10), không cài thêm gì.
 
 ## Cài (3 bước, một lần)
 
