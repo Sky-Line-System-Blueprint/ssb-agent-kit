@@ -4,7 +4,7 @@ Cho **agent AI** (Cursor, Claude Code) hỏi thẳng **SSB** — cơ cấu tổ 
 
 ## Cài (3 bước, một lần)
 
-1. `git clone https://github.com/Sky-Line-System-Blueprint/ssb-agent-kit.git` (repo private — xin quyền read).
+1. `git clone https://github.com/Sky-Line-System-Blueprint/ssb-agent-kit.git` (repo public — không cần quyền; quyền đọc dữ liệu nằm ở **token**).
 2. Xin sysadmin **token kênh máy**: SSB Governance `http://192.168.10.182:8765` → tab **Kênh máy** → «Token kênh máy — theo người» → bấm **Copy**. Mở `machine_token.txt`, dán vào **dòng trống cuối file**, lưu. Kiểm:
    ```
    python ssb.py check

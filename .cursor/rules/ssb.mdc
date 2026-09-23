@@ -11,4 +11,4 @@ Workspace này nối agent với **SSB** (nguồn sự thật tổ chức + sổ
 - Ưu tiên MCP server `ssb` (`.cursor/mcp.json` → `ssb_mcp_bridge.py`); không có MCP → `python ssb.py <lệnh>` (`python ssb.py -h`).
 - Mã VT###/DV### **phải** lấy từ `resolve_role` / `resolve_owner` / `get_*`; `ambiguous` → hỏi người dùng; `no_match` → nói không có, **không bịa**.
 - Không nạp `get_org_live` / danh sách đầy đủ khi chỉ cần một mục. Ghi mã kèm tên.
-- 403 → nhắc dán token vào `machine_token.txt` rồi `python ssb.py check`. Không commit `machine_token.txt` sau khi dán.
+- 403 → nhắc dán token vào `machine_token.txt` rồi `python ssb.py check`. Repo public: **không** commit/push `machine_token.txt` sau khi dán.

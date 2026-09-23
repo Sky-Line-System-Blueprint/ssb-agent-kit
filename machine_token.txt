@@ -5,5 +5,5 @@
 # 3. Kiểm: python ssb.py check → "quyền : OK — đọc được bằng token".
 #
 # Cùng token này dùng cho agent (MCP qua ssb_mcp_bridge.py) và CLI (ssb.py).
-# Repo private, người dùng chỉ quyền read — token dán chỉ nằm trên máy bạn. ĐỪNG commit file sau khi dán.
+# Repo PUBLIC — token dán chỉ nằm trên máy bạn. ĐỪNG commit / push / fork kèm file này sau khi dán (lộ token → báo sysadmin thu hồi ngay).
 
