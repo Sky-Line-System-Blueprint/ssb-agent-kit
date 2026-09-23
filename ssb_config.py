@@ -1,6 +1,6 @@
 """Cấu hình chung cho cầu nối MCP và CLI REST: địa chỉ SSB + token kênh máy.
 
-Thứ tự ưu tiên (giống f3_builder):
+Thứ tự ưu tiên:
   host  : env SSB_URL  → dòng đầu (không phải #) của host.txt
   token : env SSB_MACHINE_TOKEN → dòng đầu (không phải #) của machine_token.txt
 Token chỉ lấy đúng chuỗi ``ssbm_`` + 40 hex trong dòng (bỏ qua dấu #, nháy, chữ Bearer, khoảng trắng dính kèm).

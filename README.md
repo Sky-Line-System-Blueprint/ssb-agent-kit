@@ -40,10 +40,6 @@ python ssb.py status                                 # tình trạng hệ thốn
 python ssb.py get /api/v1                            # danh sách mọi đường REST
 ```
 
-## Dùng chung f3_builder?
-
-Không cần. Nếu máy đã có f3_builder thì agent trong f3_builder đã có sẵn MCP `ssb` (cùng cơ chế). Kit này dành cho người **không** soạn quy trình F3 nhưng cần agent tra tổ chức / văn bản.
-
 ## Sự cố
 
 | Triệu chứng | Xử lý |
