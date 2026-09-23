@@ -1,0 +1,14 @@
+---
+description: Hỏi SSB (tổ chức DV/VT, sổ văn bản DOC/BM) qua MCP server ssb — không đoán mã
+alwaysApply: true
+---
+
+# SSB Agent Kit
+
+Workspace này nối agent với **SSB** (nguồn sự thật tổ chức + sổ văn bản Sky-Line), **chỉ đọc**.
+
+- Hướng dẫn đầy đủ: `.claude/skills/ssb/SKILL.md` — đọc khi người dùng hỏi về chức danh, đơn vị, văn bản, biểu mẫu.
+- Ưu tiên MCP server `ssb` (`.cursor/mcp.json` → `ssb_mcp_bridge.py`); không có MCP → `python ssb.py <lệnh>` (`python ssb.py -h`).
+- Mã VT###/DV### **phải** lấy từ `resolve_role` / `resolve_owner` / `get_*`; `ambiguous` → hỏi người dùng; `no_match` → nói không có, **không bịa**.
+- Không nạp `get_org_live` / danh sách đầy đủ khi chỉ cần một mục. Ghi mã kèm tên.
+- 403 → nhắc dán token vào `machine_token.txt` rồi `python ssb.py check`. Không commit `machine_token.txt` sau khi dán.

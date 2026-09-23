@@ -1,0 +1,9 @@
+# Token kênh máy SSB (ADR-069) — dán token của BẠN vào dòng trống cuối file, lưu lại là xong.
+#
+# 1. Xin sysadmin cấp token: tab «Kênh máy» 8765 → «Token kênh máy — theo người» → bấm Copy (chỉ hiện 1 lần).
+# 2. Dán nguyên chuỗi (ssbm_ + 40 ký tự) vào dòng trống bên dưới.
+# 3. Kiểm: python ssb.py check → "quyền : OK — đọc được bằng token".
+#
+# Cùng token này dùng cho agent (MCP qua ssb_mcp_bridge.py) và CLI (ssb.py).
+# Repo private, người dùng chỉ quyền read — token dán chỉ nằm trên máy bạn. ĐỪNG commit file sau khi dán.
+
