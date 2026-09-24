@@ -11,7 +11,7 @@ SSB là nguồn sự thật về tổ chức và sổ văn bản của Sky-Line.
 
 - **Ưu tiên MCP server `ssb`** (tool bên dưới). Kiểm server sống: gọi `get_system_status` hoặc `list_catalog`.
 - Không có MCP (server `ssb` không hiện / đỏ) → chạy CLI trong thư mục repo này: `python ssb.py <lệnh>` (xem bảng). Kết quả JSON như MCP.
-- Lỗi `HTTP 403` / «token sai» → báo người dùng: dán token vào `machine_token.txt` (chép bằng nút **Copy** ở tab Kênh máy 8765), rồi chạy `python ssb.py check`. Lỗi «Không kết nối được» → máy chưa vào LAN/Tailscale tới host trong `host.txt`.
+- Lỗi `HTTP 403` / «token sai» → báo người dùng: dán token vào `machine_token.txt` (chép bằng nút **Copy** ở tab Kênh máy 8765), rồi chạy `python ssb.py check`. Lỗi «Không kết nối được» → máy chưa vào mạng tới host trong `host.txt` (ngoài văn phòng: người dùng đặt `SSB_URL` theo địa chỉ sysadmin cung cấp).
 
 ## Tool — chọn đúng việc
 
