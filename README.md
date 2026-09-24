@@ -45,8 +45,8 @@ python ssb.py get /api/v1                            # danh sách mọi đườn
 | Triệu chứng | Xử lý |
 |---|---|
 | `python ssb.py check` báo `chưa có token` / `sai định dạng` | Dán lại bằng nút **Copy** (một dòng, `ssbm_` + 40 ký tự, không thêm gì) |
-| `HTTP 403` | Token sai/thu hồi/đang ngủ (90 ngày không dùng) → báo sysadmin (tab Kênh máy: Kích hoạt lại hoặc cấp mới) |
-| `Không kết nối được SSB` | Máy chưa vào mạng công ty / Tailscale; kiểm `host.txt` |
+| `HTTP 403` | Chưa dán token, hoặc token sai/thu hồi/đang ngủ (90 ngày không dùng) → báo sysadmin (tab Kênh máy: Kích hoạt lại hoặc cấp mới). SSB chỉ nhận token — không còn cho đọc theo IP |
+| `Không kết nối được SSB` | Ở văn phòng: kiểm mạng LAN. Ở ngoài văn phòng: đặt env `SSB_URL` theo địa chỉ sysadmin cung cấp (hoặc sửa `host.txt` trên máy mình) |
 | Cursor: server `ssb` đỏ | Mở đúng thư mục repo làm workspace (không phải thư mục cha). Còn đỏ → sửa `args` trong `.cursor/mcp.json` thành đường dẫn tuyệt đối tới `ssb_mcp_bridge.py` |
 | `python` không chạy | Cài Python ≥ 3.10; Windows có thể thay `python` bằng `py` trong `.cursor/mcp.json` |
 
