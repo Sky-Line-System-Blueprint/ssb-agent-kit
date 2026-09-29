@@ -139,6 +139,9 @@ class TestCli(unittest.TestCase):
             ("rolecat", "VT008"): "/api/v1/roles/VT008",
             ("status", ""): "/api/v1/status",
             ("get", "/api/v1/schema"): "/api/v1/schema",
+            ("duties", "VT008"): "/api/v1/f3/roles/VT008/duties",
+            ("impact", "VT008"): "/api/v1/f3/roles/VT008/impact",
+            ("steps", "QT_TCNS_01"): "/api/v1/f3/steps?f3_id=QT_TCNS_01",
         }
         for (cmd, val), path in cases.items():
             rc, seen, _ = self._run([cmd, val] if val else [cmd])
@@ -147,10 +150,16 @@ class TestCli(unittest.TestCase):
             self.assertEqual(seen[0].get_header("Authorization"), f"Bearer {TOK}")
         rc, seen, _ = self._run(["docs", "quy chế", "--limit", "5"])
         self.assertEqual(seen[0].full_url, "http://h:8765/api/v1/docs?q=quy+ch%E1%BA%BF&limit=5")
+        rc, seen, _ = self._run(["steps", "QT_TCNS_01", "--step", "B1"])
+        self.assertEqual(seen[0].full_url, "http://h:8765/api/v1/f3/steps?f3_id=QT_TCNS_01&step=B1")
+        rc, seen, _ = self._run(["steps", "--form", "BM.TCNS.07"])
+        self.assertEqual(seen[0].full_url, "http://h:8765/api/v1/f3/steps?form=BM.TCNS.07")
 
     def test_missing_value(self) -> None:
         with mock.patch("sys.stderr", io.StringIO()):
             self.assertEqual(ssb.main(["role"]), 2)
+            self.assertEqual(ssb.main(["duties"]), 2)
+            self.assertEqual(ssb.main(["steps"]), 2)
 
 
 class TestConfigFiles(unittest.TestCase):
