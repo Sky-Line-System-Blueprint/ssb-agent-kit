@@ -12,6 +12,10 @@
   python ssb.py unit  [DV12]                  # đơn vị (bỏ id = tất cả)
   python ssb.py rolecat [VT008]               # chức danh (bỏ id = tất cả)
   python ssb.py status                        # tình trạng hệ thống
+  python ssb.py duties VT008                  # vị trí → trách nhiệm trong quy trình đã thừa nhận/ban hành
+  python ssb.py steps QT_TCNS_01 [--step B1]  # bước → ai làm (R/A/C/I)
+  python ssb.py steps --form BM.TCNS.07       # biểu mẫu/văn bản → bước dùng nó + ai làm
+  python ssb.py impact VT008                  # đổi vị trí → quy trình/combo/đơn vị bị ảnh hưởng
   python ssb.py get /api/v1/...               # gọi thẳng đường bất kỳ (xem: python ssb.py get /api/v1)
 
 In JSON ra stdout. Mã thoát: 0 ổn · 2 lỗi tham số · 3 lỗi mạng/HTTP.
@@ -58,6 +62,9 @@ ROUTES = {
     "unit": lambda a: (f"/api/v1/units/{_q(a.value)}" if a.value else "/api/v1/units", None),
     "rolecat": lambda a: (f"/api/v1/roles/{_q(a.value)}" if a.value else "/api/v1/roles", None),
     "status": lambda a: ("/api/v1/status", None),
+    "duties": lambda a: (f"/api/v1/f3/roles/{_q(a.value)}/duties", None),
+    "steps": lambda a: ("/api/v1/f3/steps", {"f3_id": a.value, "step": a.step, "form": a.form}),
+    "impact": lambda a: (f"/api/v1/f3/roles/{_q(a.value)}/impact", None),
     "get": lambda a: (a.value or "/api/v1", None),
 }
 
@@ -70,6 +77,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("cmd", choices=["check", *ROUTES])
     ap.add_argument("value", nargs="?", default="")
     ap.add_argument("--limit", type=int, default=None)
+    ap.add_argument("--step", default=None, help="steps: mã bước (B1, CP2…)")
+    ap.add_argument("--form", default=None, help="steps: mã BM/DOC thay cho mã quy trình")
     a = ap.parse_args(argv)
     if a.cmd == "check":
         problem = ssb_config.token_problem()
@@ -87,8 +96,11 @@ def main(argv: list[str] | None = None) -> int:
         except Exception as e:
             print(f"server: không kết nối được ({e}) — kiểm LAN / host.txt")
             return 3
-    if a.cmd in ("role", "owner", "combo", "docs", "forms", "doc", "form") and not a.value:
+    if a.cmd in ("role", "owner", "combo", "docs", "forms", "doc", "form", "duties", "impact") and not a.value:
         print(f"thiếu tham số: python ssb.py {a.cmd} \"<giá trị>\"", file=sys.stderr)
+        return 2
+    if a.cmd == "steps" and not (a.value or a.form):
+        print("thiếu tham số: python ssb.py steps QT_... [--step B1]  hoặc  steps --form BM....", file=sys.stderr)
         return 2
     path, params = ROUTES[a.cmd](a)
     try:
