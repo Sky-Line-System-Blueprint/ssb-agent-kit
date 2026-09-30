@@ -37,9 +37,9 @@ python ssb.py docs  "quy chế"                        # tìm văn bản
 python ssb.py doc   DOC.TCNS.01                      # một văn bản đủ trường
 python ssb.py forms "phiếu"                          # tìm biểu mẫu
 python ssb.py status                                 # tình trạng hệ thống
-python ssb.py duties VT008                           # vị trí → trách nhiệm trong quy trình
+python ssb.py duties VT008                           # chức danh → trách nhiệm trong quy trình
 python ssb.py steps --form BM.TCNS.07                # biểu mẫu → bước dùng nó + ai làm
-python ssb.py impact VT008                           # đổi vị trí → ảnh hưởng tới đâu
+python ssb.py impact VT008                           # đổi chức danh → ảnh hưởng tới đâu
 python ssb.py get /api/v1                            # danh sách mọi đường REST
 ```
 

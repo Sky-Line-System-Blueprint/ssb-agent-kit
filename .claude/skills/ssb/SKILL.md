@@ -1,6 +1,6 @@
 ---
 name: ssb
-description: Hỏi SSB (Sky-Line System Blueprint) — cơ cấu tổ chức (đơn vị DV###, chức danh VT###, cấp bậc), sổ đăng ký văn bản DOC / biểu mẫu BM, trách nhiệm của vị trí trong quy trình (RACI), trạng thái hệ thống — qua MCP server `ssb` (hoặc CLI `python ssb.py` khi chưa có MCP). Dùng khi người dùng hỏi «chức danh X mã gì», «ban nào phụ trách Y», «có quy chế/biểu mẫu về Z không», «DOC.TCNS.01 ban hành chưa», «vị trí X chịu trách nhiệm gì trong quy trình», «bước/biểu mẫu Y ai làm, ai duyệt», «đổi vị trí X ảnh hưởng gì», hoặc cần mã chuẩn để viết tài liệu, RACI, báo cáo.
+description: Hỏi SSB (Sky-Line System Blueprint) — cơ cấu tổ chức (đơn vị DV###, chức danh VT###, cấp bậc), sổ đăng ký văn bản DOC / biểu mẫu BM, trách nhiệm của chức danh trong quy trình (RACI), trạng thái hệ thống — qua MCP server `ssb` (hoặc CLI `python ssb.py` khi chưa có MCP). Dùng khi người dùng hỏi «chức danh X mã gì», «ban nào phụ trách Y», «có quy chế/biểu mẫu về Z không», «DOC.TCNS.01 ban hành chưa», «chức danh X chịu trách nhiệm gì trong quy trình», «bước/biểu mẫu Y ai làm, ai duyệt», «đổi chức danh X ảnh hưởng gì», «X báo cáo ai / đơn vị Y thuộc đâu», hoặc cần mã chuẩn để viết tài liệu, RACI, báo cáo.
 ---
 
 # SSB — hỏi dữ liệu tổ chức & sổ văn bản
@@ -26,11 +26,20 @@ SSB là nguồn sự thật về tổ chức và sổ văn bản của Sky-Line.
 | Thông tin một đơn vị / chức danh theo mã | `get_unit_des {id}` / `get_role_des {id}` | `python ssb.py unit DV12` / `rolecat VT008` |
 | Ý nghĩa các trường (kind, status, owner_unit, doc_no…) | `get_schema` | `python ssb.py get /api/v1/schema` |
 | Tình trạng hệ thống (số liệu sổ, F3, backup) | `get_system_status` | `python ssb.py status` |
-| Cây tổ chức đầy đủ (lớn, ~130 KB) | `get_org_live` | `python ssb.py get /api/v1/org-live` |
-| Vị trí VT### → trách nhiệm trong quy trình (bước, R/A/C/I, biểu mẫu, SLA) | `f3_role_duties {vt}` | `python ssb.py duties VT008` |
+| Cây tổ chức đầy đủ (lớn) — ai báo cáo ai, đơn vị thuộc đâu | `get_org_live` | `python ssb.py get /api/v1/org-live` |
+| Bảng org phẳng (units, roles, ranks, sites, positions, position_relations) | `get_org_tables {tables?}` | `python ssb.py get "/api/v1/org-tables?tables=positions"` |
+| Chức danh VT### → trách nhiệm trong quy trình (bước, R/A/C/I, biểu mẫu, SLA) | `f3_role_duties {vt}` | `python ssb.py duties VT008` |
 | Bước của quy trình → ai làm / duyệt / được hỏi / được báo | `f3_step_actors {f3_id, step?}` | `python ssb.py steps QT_TCNS_01 --step B1` |
 | Biểu mẫu / văn bản → những bước dùng nó + ai làm | `f3_step_actors {form}` | `python ssb.py steps --form BM.TCNS.07` |
-| Đổi vị trí VT### → quy trình, combo, đơn vị bị ảnh hưởng | `f3_role_impact {vt}` | `python ssb.py impact VT008` |
+| Đổi chức danh VT### → quy trình, combo, đơn vị bị ảnh hưởng | `f3_role_impact {vt}` | `python ssb.py impact VT008` |
+
+## Mô hình tổ chức
+
+- **Đơn vị** `DV###`; gốc là `DV00` «Tổng công ty». Đơn vị có ở mỗi cơ sở thì có bản mẫu `DV###` và bản theo cơ sở `DV###|CS#` (tên, cấp, loại lấy theo bản mẫu).
+- **Chức danh** `VT###` (tên, cấp bậc). **Vị trí** = chức danh đặt trong một đơn vị ở một nơi làm việc: `VT###` hoặc `VT###|CS#`. Các tool `f3_*` nhận chức danh (`VT###`, bỏ hậu tố `|CS#`).
+- **Trực thuộc** (`belongs_to`) khác **chịu điều hành**: một ban trực thuộc Tổng công ty nhưng do Tổng Giám đốc điều hành. Tuyến điều hành không lưu riêng mà suy ra từ cấp trên trực tiếp của người đứng đầu đơn vị (`owner`).
+- **Quan hệ giữa vị trí** (`position_relations.kind`): `reports_to` (cấp trên trực tiếp, mỗi vị trí một) · `professional` (chỉ đạo chuyên môn) · `serves` (phục vụ / hỗ trợ, vd. nhân viên IT phục vụ GĐ cơ sở) · `outsource_managed_by` (đơn vị thuê ngoài do vị trí nào quản lý).
+- Trong `get_org_live`: mỗi đơn vị có `parent` (điều hành), `belongs_to`, `owner`, `is_template`; mỗi chức danh có `reports_to`, `professional[]`, `serves[]`, `outsource_managed_by`.
 
 ## Quy tắc
 
@@ -51,7 +60,7 @@ SSB là nguồn sự thật về tổ chức và sổ văn bản của Sky-Line.
    - Mỗi dòng có `via`: `direct` (ô RACI ghi thẳng mã) · `unit:DVxx` (vị trí là trưởng đơn vị được ghi) · `combo:<nhóm>` (thuộc nhóm tĩnh, vd. GVMN) · `rule:<nhóm>` (vai tương đối GĐB/TBP/QLTT). Dòng `rule` là **câu trả lời có điều kiện** — trích nguyên `condition`, vd. «là GĐB khi đối tượng thuộc DV12»; không nói như trách nhiệm cố định. `varies: true` = khác nhau theo cơ sở.
    - Cột R/A/C/I là `null` / có trong `raci_unknown` = **không rõ** (bản lưu thiếu dữ liệu) — nói «không rõ», **không** nói «không ai».
    - Cờ: `live_changed` = bản đang soạn đã sửa sau mốc (trả lời theo bản đã ký, nhắc có thể đang đổi) · `dang_sua_lai` = quy trình đang được trả về sửa, bản trả là bản đã thừa nhận trước đó.
-   - Tra theo cơ sở: kết quả là mã vị trí cấu trúc (VT###), không phải người cụ thể; người giữ vị trí xem ở hệ thống nhân sự.
+   - Tra theo cơ sở: kết quả là mã chức danh (VT###), không phải người cụ thể; người giữ vị trí xem ở hệ thống nhân sự.
 
 ## Ví dụ
 
