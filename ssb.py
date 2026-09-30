@@ -12,10 +12,10 @@
   python ssb.py unit  [DV12]                  # đơn vị (bỏ id = tất cả)
   python ssb.py rolecat [VT008]               # chức danh (bỏ id = tất cả)
   python ssb.py status                        # tình trạng hệ thống
-  python ssb.py duties VT008                  # vị trí → trách nhiệm trong quy trình đã thừa nhận/ban hành
+  python ssb.py duties VT008                  # chức danh → trách nhiệm trong quy trình đã thừa nhận/ban hành
   python ssb.py steps QT_TCNS_01 [--step B1]  # bước → ai làm (R/A/C/I)
   python ssb.py steps --form BM.TCNS.07       # biểu mẫu/văn bản → bước dùng nó + ai làm
-  python ssb.py impact VT008                  # đổi vị trí → quy trình/combo/đơn vị bị ảnh hưởng
+  python ssb.py impact VT008                  # đổi chức danh → quy trình/combo/đơn vị bị ảnh hưởng
   python ssb.py get /api/v1/...               # gọi thẳng đường bất kỳ (xem: python ssb.py get /api/v1)
 
 In JSON ra stdout. Mã thoát: 0 ổn · 2 lỗi tham số · 3 lỗi mạng/HTTP.
