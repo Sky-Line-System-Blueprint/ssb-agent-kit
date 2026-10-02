@@ -142,6 +142,7 @@ class TestCli(unittest.TestCase):
             ("duties", "VT008"): "/api/v1/f3/roles/VT008/duties",
             ("impact", "VT008"): "/api/v1/f3/roles/VT008/impact",
             ("steps", "QT_TCNS_01"): "/api/v1/f3/steps?f3_id=QT_TCNS_01",
+            ("version", "QT_TCNS_01"): "/api/v1/f3/versions/QT_TCNS_01",
         }
         for (cmd, val), path in cases.items():
             rc, seen, _ = self._run([cmd, val] if val else [cmd])
@@ -154,12 +155,16 @@ class TestCli(unittest.TestCase):
         self.assertEqual(seen[0].full_url, "http://h:8765/api/v1/f3/steps?f3_id=QT_TCNS_01&step=B1")
         rc, seen, _ = self._run(["steps", "--form", "BM.TCNS.07"])
         self.assertEqual(seen[0].full_url, "http://h:8765/api/v1/f3/steps?form=BM.TCNS.07")
+        rc, seen, _ = self._run(["version", "QT_KTĐBCL_01", "--seq", "1", "--flowchart"])
+        self.assertEqual(seen[0].full_url,
+                         "http://h:8765/api/v1/f3/versions/QT_KT%C4%90BCL_01?seq=1&flowchart=true")
 
     def test_missing_value(self) -> None:
         with mock.patch("sys.stderr", io.StringIO()):
             self.assertEqual(ssb.main(["role"]), 2)
             self.assertEqual(ssb.main(["duties"]), 2)
             self.assertEqual(ssb.main(["steps"]), 2)
+            self.assertEqual(ssb.main(["version"]), 2)
 
 
 class TestConfigFiles(unittest.TestCase):

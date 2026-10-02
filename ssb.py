@@ -16,6 +16,7 @@
   python ssb.py steps QT_TCNS_01 [--step B1]  # bước → ai làm (R/A/C/I)
   python ssb.py steps --form BM.TCNS.07       # biểu mẫu/văn bản → bước dùng nó + ai làm
   python ssb.py impact VT008                  # đổi chức danh → quy trình/combo/đơn vị bị ảnh hưởng
+  python ssb.py version QT_TCNS_01 [--seq 1] [--flowchart]   # toàn văn phiên bản quy trình đã thừa nhận/ban hành
   python ssb.py get /api/v1/...               # gọi thẳng đường bất kỳ (xem: python ssb.py get /api/v1)
 
 In JSON ra stdout. Mã thoát: 0 ổn · 2 lỗi tham số · 3 lỗi mạng/HTTP.
@@ -65,6 +66,10 @@ ROUTES = {
     "duties": lambda a: (f"/api/v1/f3/roles/{_q(a.value)}/duties", None),
     "steps": lambda a: ("/api/v1/f3/steps", {"f3_id": a.value, "step": a.step, "form": a.form}),
     "impact": lambda a: (f"/api/v1/f3/roles/{_q(a.value)}/impact", None),
+    "version": lambda a: (
+        f"/api/v1/f3/versions/{_q(a.value)}",
+        {k: v for k, v in (("seq", a.seq), ("flowchart", "true" if a.flowchart else None)) if v is not None} or None,
+    ),
     "get": lambda a: (a.value or "/api/v1", None),
 }
 
@@ -79,6 +84,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--limit", type=int, default=None)
     ap.add_argument("--step", default=None, help="steps: mã bước (B1, CP2…)")
     ap.add_argument("--form", default=None, help="steps: mã BM/DOC thay cho mã quy trình")
+    ap.add_argument("--seq", type=int, default=None, help="version: số thứ tự phiên bản (bỏ = đang hiệu lực)")
+    ap.add_argument("--flowchart", action="store_true", help="version: kèm lưu đồ")
     a = ap.parse_args(argv)
     if a.cmd == "check":
         problem = ssb_config.token_problem()
@@ -96,7 +103,7 @@ def main(argv: list[str] | None = None) -> int:
         except Exception as e:
             print(f"server: không kết nối được ({e}) — kiểm LAN / host.txt")
             return 3
-    if a.cmd in ("role", "owner", "combo", "docs", "forms", "doc", "form", "duties", "impact") and not a.value:
+    if a.cmd in ("role", "owner", "combo", "docs", "forms", "doc", "form", "duties", "impact", "version") and not a.value:
         print(f"thiếu tham số: python ssb.py {a.cmd} \"<giá trị>\"", file=sys.stderr)
         return 2
     if a.cmd == "steps" and not (a.value or a.form):
