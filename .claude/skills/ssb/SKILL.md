@@ -1,6 +1,6 @@
 ---
 name: ssb
-description: Hỏi SSB (Sky-Line System Blueprint) — cơ cấu tổ chức (đơn vị DV###, chức danh VT###, cấp bậc), sổ đăng ký văn bản DOC / biểu mẫu BM, trách nhiệm của chức danh trong quy trình (RACI), trạng thái hệ thống — qua MCP server `ssb` (hoặc CLI `python ssb.py` khi chưa có MCP). Dùng khi người dùng hỏi «chức danh X mã gì», «ban nào phụ trách Y», «có quy chế/biểu mẫu về Z không», «DOC.TCNS.01 ban hành chưa», «chức danh X chịu trách nhiệm gì trong quy trình», «bước/biểu mẫu Y ai làm, ai duyệt», «đổi chức danh X ảnh hưởng gì», «X báo cáo ai / đơn vị Y thuộc đâu», hoặc cần mã chuẩn để viết tài liệu, RACI, báo cáo.
+description: Hỏi SSB (Sky-Line System Blueprint) — cơ cấu tổ chức (đơn vị DV###, chức danh VT###, cấp bậc), sổ đăng ký văn bản DOC / biểu mẫu BM, trách nhiệm của chức danh trong quy trình (RACI), trạng thái hệ thống — qua MCP server `ssb` (hoặc CLI `python ssb.py` khi chưa có MCP). Dùng khi người dùng hỏi «chức danh X mã gì», «ban nào phụ trách Y», «có quy chế/biểu mẫu về Z không», «DOC.TCNS.01 ban hành chưa», «chức danh X chịu trách nhiệm gì trong quy trình», «bước/biểu mẫu Y ai làm, ai duyệt», «đổi chức danh X ảnh hưởng gì», «quy trình X gồm những bước/KPI/biểu mẫu gì», «X báo cáo ai / đơn vị Y thuộc đâu», hoặc cần mã chuẩn để viết tài liệu, RACI, báo cáo.
 ---
 
 # SSB — hỏi dữ liệu tổ chức & sổ văn bản
@@ -32,6 +32,7 @@ SSB là nguồn sự thật về tổ chức và sổ văn bản của Sky-Line.
 | Bước của quy trình → ai làm / duyệt / được hỏi / được báo | `f3_step_actors {f3_id, step?}` | `python ssb.py steps QT_TCNS_01 --step B1` |
 | Biểu mẫu / văn bản → những bước dùng nó + ai làm | `f3_step_actors {form}` | `python ssb.py steps --form BM.TCNS.07` |
 | Đổi chức danh VT### → quy trình, combo, đơn vị bị ảnh hưởng | `f3_role_impact {vt}` | `python ssb.py impact VT008` |
+| **Toàn văn một quy trình** (12 mục: mục đích, phạm vi, bước, KPI, biểu mẫu, checklist…, kèm bìa + chữ ký các mốc) — bản đang hiệu lực hoặc theo `seq` | `f3_version {f3_id, seq?, flowchart?}` | `python ssb.py version QT_TCNS_01 [--seq 1]` |
 
 ## Mô hình tổ chức
 
@@ -62,6 +63,10 @@ SSB là nguồn sự thật về tổ chức và sổ văn bản của Sky-Line.
    - Cột R/A/C/I là `null` / có trong `raci_unknown` = **không rõ** (bản lưu thiếu dữ liệu) — nói «không rõ», **không** nói «không ai».
    - Cờ: `live_changed` = bản đang soạn đã sửa sau mốc (trả lời theo bản đã ký, nhắc có thể đang đổi) · `dang_sua_lai` = quy trình đang được trả về sửa, bản trả là bản đã thừa nhận trước đó.
    - Tra theo cơ sở: kết quả là mã chức danh (VT###), không phải người cụ thể; người giữ vị trí xem ở hệ thống nhân sự.
+9. **Toàn văn quy trình (`f3_version`)** — chỉ bản đã thừa nhận/ban hành (nháp không có); `nhan` cùng nghĩa `label` ở trên. Trả `core` (nội dung 12 mục), `signatures` (người ký + thời điểm từng mốc), `versions` (mọi phiên bản của quy trình). Trả lời nội dung quy trình thì **trích từ `core`**, nói rõ phiên bản (`seq`) và nhãn; không thêm bước/biểu mẫu không có trong `core`.
+   - Chỉ xin `flowchart: true` khi thật cần lưu đồ (nặng, toàn tọa độ).
+   - Mục tài liệu ghi `(tài liệu hạn chế)` = token của bạn không được xem văn bản đó — nói vậy, **không đoán** tên.
+   - Lỗi «chưa có phiên bản đã thừa nhận/ban hành» → quy trình còn nháp; hướng dẫn xem ở F3 Registry.
 
 ## Ví dụ
 
@@ -70,3 +75,4 @@ SSB là nguồn sự thật về tổ chức và sổ văn bản của Sky-Line.
 - «RACI: Giáo viên bộ môn thực hiện» → `resolve_combo {token: "GVBM"}` → «Giáo viên Bộ môn».
 - «GĐ Ban TCNS phải duyệt những gì?» → `resolve_role {label: "Giám đốc Ban Tổ chức - Nhân sự"}` → VT008 → `f3_role_duties {vt: "VT008"}` → lọc `letter = "A"`, nhóm theo quy trình, tách dòng `direct` với dòng có điều kiện.
 - «Phiếu BM.TCNS.07 dùng ở bước nào, ai ký?» → `f3_step_actors {form: "BM.TCNS.07"}` → liệt kê quy trình/bước + R và A.
+- «Quy trình QT_TCNS_01 có những bước nào, KPI là gì?» → `f3_version {f3_id: "QT_TCNS_01"}` → đọc `core.steps` (mã bước + tên + đầu vào/đầu ra) và `core.kpi`; ghi «phiên bản seq N, đã thừa nhận/ban hành».

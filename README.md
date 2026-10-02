@@ -40,6 +40,7 @@ python ssb.py status                                 # tình trạng hệ thốn
 python ssb.py duties VT008                           # chức danh → trách nhiệm trong quy trình
 python ssb.py steps --form BM.TCNS.07                # biểu mẫu → bước dùng nó + ai làm
 python ssb.py impact VT008                           # đổi chức danh → ảnh hưởng tới đâu
+python ssb.py version QT_TCNS_01                     # toàn văn quy trình (bản đang hiệu lực; --seq N bản cũ)
 python ssb.py get /api/v1                            # danh sách mọi đường REST
 ```
 
