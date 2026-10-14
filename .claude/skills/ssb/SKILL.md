@@ -33,10 +33,12 @@ SSB là nguồn sự thật về tổ chức và sổ văn bản của Sky-Line.
 | Biểu mẫu / văn bản → những bước dùng nó + ai làm | `f3_step_actors {form}` | `python ssb.py steps --form BM.TCNS.07` |
 | Đổi chức danh VT### → quy trình, combo, đơn vị bị ảnh hưởng | `f3_role_impact {vt}` | `python ssb.py impact VT008` |
 | **Toàn văn một quy trình** (12 mục: mục đích, phạm vi, bước, KPI, biểu mẫu, checklist…, kèm bìa + chữ ký các mốc) — bản đang hiệu lực hoặc theo `seq` | `f3_version {f3_id, seq?, flowchart?}` | `python ssb.py version QT_TCNS_01 [--seq 1]` |
+| **Chức năng nhiệm vụ** của một ban/cơ sở: chức năng (F0) → nhiệm vụ chính (F1) → nhiệm vụ chi tiết (F2, kèm tần suất + kết quả đầu ra) | `get_functions {owner_unit?, level?}` | `python ssb.py functions DV12 [--level f2]` |
 
 ## Mô hình tổ chức
 
 - **Đơn vị** `DV###`. Cây nhiều gốc: đơn vị cấp `governance`/`top`/`high` (HĐQT, BTGĐ, các ban, cơ sở…) chưa khai trực thuộc là gốc riêng (không còn gốc chung `DV00`). Đơn vị có ở mỗi cơ sở thì có bản mẫu `DV###` và bản theo cơ sở `DV###|CS#` (tên, cấp, loại lấy theo bản mẫu).
+- **Chức năng nhiệm vụ** (SSB ADR-086): `get_functions` trả `{f0, f1, f2}`. F0 có `owner_unit` (ban hoặc `DV20` = bộ chung cho mọi cơ sở); F1 trỏ cha bằng `f0_id`, F2 bằng `f1_id`; thứ tự theo `ord`. Lọc `owner_unit` = F0 của đơn vị đó + F1/F2 con. Chưa có liên kết F2 → quy trình F3 (chưa gán) và chưa có RACI theo F2 — đừng suy ra ai làm nhiệm vụ nào từ catalog này.
 - **Chức danh** `VT###` (tên, cấp bậc). **Vị trí** = chức danh đặt trong một đơn vị ở một nơi làm việc: `VT###` hoặc `VT###|CS#`. Các tool `f3_*` nhận chức danh (`VT###`, bỏ hậu tố `|CS#`).
 - **Trực thuộc** (`belongs_to`, lưu) khác **chịu điều hành** (`manager_unit`, dẫn xuất): một ban là gốc riêng (không trực thuộc ai) nhưng do Tổng Giám đốc điều hành. Tuyến điều hành không lưu riêng mà suy ra từ cấp trên trực tiếp của người đứng đầu đơn vị (`owner`).
 - **Một mã `VT###` hai nghĩa**: trong bảng `roles` là chức danh; trong bảng `positions` là vị trí khối văn phòng của chức danh đó (`VT###|CS#` = vị trí ở cơ sở). Xem `get_schema` → `conventions`.
@@ -75,4 +77,5 @@ SSB là nguồn sự thật về tổ chức và sổ văn bản của Sky-Line.
 - «RACI: Giáo viên bộ môn thực hiện» → `resolve_combo {token: "GVBM"}` → «Giáo viên Bộ môn».
 - «GĐ Ban TCNS phải duyệt những gì?» → `resolve_role {label: "Giám đốc Ban Tổ chức - Nhân sự"}` → VT008 → `f3_role_duties {vt: "VT008"}` → lọc `letter = "A"`, nhóm theo quy trình, tách dòng `direct` với dòng có điều kiện.
 - «Phiếu BM.TCNS.07 dùng ở bước nào, ai ký?» → `f3_step_actors {form: "BM.TCNS.07"}` → liệt kê quy trình/bước + R và A.
+- «Ban Tổ chức - Nhân sự có những chức năng gì?» → `resolve_owner {label: "Ban Tổ chức - Nhân sự"}` → DV12 → `get_functions {owner_unit: "DV12"}` → liệt kê F0, dưới mỗi F0 là F1 (theo `ord`); chỉ đi xuống F2 khi người dùng hỏi chi tiết.
 - «Quy trình QT_TCNS_01 có những bước nào, KPI là gì?» → `f3_version {f3_id: "QT_TCNS_01"}` → đọc `core.steps` (mã bước + tên + đầu vào/đầu ra) và `core.kpi`; ghi «phiên bản seq N, đã thừa nhận/ban hành».
