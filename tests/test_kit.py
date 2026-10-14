@@ -143,6 +143,8 @@ class TestCli(unittest.TestCase):
             ("impact", "VT008"): "/api/v1/f3/roles/VT008/impact",
             ("steps", "QT_TCNS_01"): "/api/v1/f3/steps?f3_id=QT_TCNS_01",
             ("version", "QT_TCNS_01"): "/api/v1/f3/versions/QT_TCNS_01",
+            ("functions", ""): "/api/v1/functions",
+            ("functions", "DV12"): "/api/v1/functions?owner_unit=DV12",
         }
         for (cmd, val), path in cases.items():
             rc, seen, _ = self._run([cmd, val] if val else [cmd])
@@ -158,6 +160,8 @@ class TestCli(unittest.TestCase):
         rc, seen, _ = self._run(["version", "QT_KTĐBCL_01", "--seq", "1", "--flowchart"])
         self.assertEqual(seen[0].full_url,
                          "http://h:8765/api/v1/f3/versions/QT_KT%C4%90BCL_01?seq=1&flowchart=true")
+        rc, seen, _ = self._run(["functions", "DV20", "--level", "f2"])
+        self.assertEqual(seen[0].full_url, "http://h:8765/api/v1/functions?owner_unit=DV20&level=f2")
 
     def test_missing_value(self) -> None:
         with mock.patch("sys.stderr", io.StringIO()):
