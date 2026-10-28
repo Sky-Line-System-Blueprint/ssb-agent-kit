@@ -34,6 +34,8 @@ SSB là nguồn sự thật về tổ chức và sổ văn bản của Sky-Line.
 | Đổi chức danh VT### → quy trình, combo, đơn vị bị ảnh hưởng | `f3_role_impact {vt}` | `python ssb.py impact VT008` |
 | **Toàn văn một quy trình** (12 mục: mục đích, phạm vi, bước, KPI, biểu mẫu, checklist…, kèm bìa + chữ ký các mốc) — bản đang hiệu lực hoặc theo `seq` | `f3_version {f3_id, seq?, flowchart?}` | `python ssb.py version QT_TCNS_01 [--seq 1]` |
 | **Chức năng nhiệm vụ** của một ban/cơ sở: chức năng (F0) → nhiệm vụ chính (F1) → nhiệm vụ chi tiết (F2, kèm tần suất + kết quả đầu ra) | `get_functions {owner_unit?, level?}` | `python ssb.py functions DV12 [--level f2]` |
+| **Sổ tồn đọng dữ liệu** — vấn đề dữ liệu QA đã ghi nhận để rà sau (tra trước khi báo lỗi một QT/DOC/vị trí) | `list_deferred_issues` | `python ssb.py deferred` |
+| **Luồng lưu đồ Mục 9** của quy trình (nút/cạnh — đo độ phức tạp lưu đồ); **chỉ token qa_admin/analyst** | `f3_flow {f3_id?}` | `python ssb.py flow QT_TCNS_01` |
 
 ## Mô hình tổ chức
 
@@ -69,6 +71,8 @@ SSB là nguồn sự thật về tổ chức và sổ văn bản của Sky-Line.
    - Chỉ xin `flowchart: true` khi thật cần lưu đồ (nặng, toàn tọa độ).
    - Mục tài liệu ghi `(tài liệu hạn chế)` = token của bạn không được xem văn bản đó — nói vậy, **không đoán** tên.
    - Lỗi «chưa có phiên bản đã thừa nhận/ban hành» → quy trình còn nháp; hướng dẫn xem ở F3 Registry.
+10. **Sổ tồn đọng (`list_deferred_issues`)** (SSB ADR-090) — cả sổ, mục mới nhất trước; mỗi mục `id` (TD-####), `issue` (một ô chữ tự do — mã QT/DOC/vị trí viết thẳng trong đó), `raised_at`, `updated_at`. Không có trạng thái đóng/mở: mục còn trong sổ ≠ chưa xử lý. Trước khi báo «dữ liệu sai» về một đối tượng, tìm mã của nó trong `issue` — có rồi thì dẫn `TD-####` thay vì báo lại. Ghi sổ chỉ QA làm trên SSB, không qua kênh này.
+11. **Luồng lưu đồ (`f3_flow`)** — dữ liệu dẫn xuất từ lần audit gần nhất của **bản nháp** (`audited_hash`), không phải bản đã ký: `nodes {id, label, kind}`, `edges {src, dst, label, dashed, bypass, back, fan}`. `flow: null` = QT chưa được audit lại từ f3_audit 0.4.0 — nói vậy, không suy ra «không có lưu đồ». Bỏ `f3_id` = mọi QT (lớn). Token không phải qa_admin/analyst → lỗi từ chối (REST 403): báo người dùng xin quyền, đừng thử đường khác.
 
 ## Ví dụ
 
@@ -78,4 +82,5 @@ SSB là nguồn sự thật về tổ chức và sổ văn bản của Sky-Line.
 - «GĐ Ban TCNS phải duyệt những gì?» → `resolve_role {label: "Giám đốc Ban Tổ chức - Nhân sự"}` → VT008 → `f3_role_duties {vt: "VT008"}` → lọc `letter = "A"`, nhóm theo quy trình, tách dòng `direct` với dòng có điều kiện.
 - «Phiếu BM.TCNS.07 dùng ở bước nào, ai ký?» → `f3_step_actors {form: "BM.TCNS.07"}` → liệt kê quy trình/bước + R và A.
 - «Ban Tổ chức - Nhân sự có những chức năng gì?» → `resolve_owner {label: "Ban Tổ chức - Nhân sự"}` → DV12 → `get_functions {owner_unit: "DV12"}` → liệt kê F0, dưới mỗi F0 là F1 (theo `ord`); chỉ đi xuống F2 khi người dùng hỏi chi tiết.
+- «QT_TCNS_01 có đang bị ghi nhận vấn đề dữ liệu nào không?» → `list_deferred_issues` → lọc mục có «QT_TCNS_01» trong `issue` → trích `TD-####` + nội dung.
 - «Quy trình QT_TCNS_01 có những bước nào, KPI là gì?» → `f3_version {f3_id: "QT_TCNS_01"}` → đọc `core.steps` (mã bước + tên + đầu vào/đầu ra) và `core.kpi`; ghi «phiên bản seq N, đã thừa nhận/ban hành».

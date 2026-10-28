@@ -18,6 +18,8 @@
   python ssb.py impact VT008                  # đổi chức danh → quy trình/combo/đơn vị bị ảnh hưởng
   python ssb.py version QT_TCNS_01 [--seq 1] [--flowchart]   # toàn văn phiên bản quy trình đã thừa nhận/ban hành
   python ssb.py functions [DV12] [--level f2]  # chức năng nhiệm vụ F0→F1→F2 (bỏ DV = mọi đơn vị)
+  python ssb.py deferred                      # sổ tồn đọng dữ liệu (vấn đề QA đã ghi nhận, mới nhất trước)
+  python ssb.py flow [QT_TCNS_01]             # luồng lưu đồ Mục 9 (nút/cạnh) — chỉ token qa_admin/analyst
   python ssb.py get /api/v1/...               # gọi thẳng đường bất kỳ (xem: python ssb.py get /api/v1)
 
 In JSON ra stdout. Mã thoát: 0 ổn · 2 lỗi tham số · 3 lỗi mạng/HTTP.
@@ -73,6 +75,8 @@ ROUTES = {
         {k: v for k, v in (("seq", a.seq), ("flowchart", "true" if a.flowchart else None)) if v is not None} or None,
     ),
     "functions": lambda a: ("/api/v1/functions", {"owner_unit": a.value, "level": a.level}),
+    "deferred": lambda a: ("/api/v1/deferred-issues", None),
+    "flow": lambda a: ("/api/v1/f3/flow", {"f3_id": a.value}),
     "get": lambda a: (a.value or "/api/v1", None),
 }
 

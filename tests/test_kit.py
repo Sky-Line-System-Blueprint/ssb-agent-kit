@@ -145,6 +145,9 @@ class TestCli(unittest.TestCase):
             ("version", "QT_TCNS_01"): "/api/v1/f3/versions/QT_TCNS_01",
             ("functions", ""): "/api/v1/functions",
             ("functions", "DV12"): "/api/v1/functions?owner_unit=DV12",
+            ("deferred", ""): "/api/v1/deferred-issues",
+            ("flow", ""): "/api/v1/f3/flow",
+            ("flow", "QT_TCNS_01"): "/api/v1/f3/flow?f3_id=QT_TCNS_01",
         }
         for (cmd, val), path in cases.items():
             rc, seen, _ = self._run([cmd, val] if val else [cmd])
