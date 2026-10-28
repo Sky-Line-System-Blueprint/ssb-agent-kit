@@ -42,6 +42,8 @@ python ssb.py steps --form BM.TCNS.07                # biểu mẫu → bước 
 python ssb.py impact VT008                           # đổi chức danh → ảnh hưởng tới đâu
 python ssb.py version QT_TCNS_01                     # toàn văn quy trình (bản đang hiệu lực; --seq N bản cũ)
 python ssb.py functions DV12                         # chức năng nhiệm vụ F0→F1→F2 của một ban (--level f2: chỉ một tầng)
+python ssb.py deferred                               # sổ tồn đọng dữ liệu — vấn đề QA đã ghi nhận để rà sau
+python ssb.py flow QT_TCNS_01                        # luồng lưu đồ Mục 9 (nút/cạnh) — chỉ token qa_admin/analyst
 python ssb.py get /api/v1                            # danh sách mọi đường REST
 ```
 
