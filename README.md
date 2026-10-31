@@ -44,8 +44,13 @@ python ssb.py version QT_TCNS_01                     # toàn văn quy trình (b�
 python ssb.py functions DV12                         # chức năng nhiệm vụ F0→F1→F2 của một ban (--level f2: chỉ một tầng)
 python ssb.py deferred                               # sổ tồn đọng dữ liệu — vấn đề QA đã ghi nhận để rà sau
 python ssb.py flow QT_TCNS_01                        # luồng lưu đồ Mục 9 (nút/cạnh) — chỉ token qa_admin/analyst
+python ssb.py flow-steps --out steps.json            # RACI + biểu mẫu từng bước mọi quy trình (bản nháp, ~1 MB) — chỉ token qa_admin/analyst
 python ssb.py get /api/v1                            # danh sách mọi đường REST
 ```
+
+Dữ liệu lớn → `--out <file>` (ghi UTF-8; trên PowerShell đừng dùng `>`, nó ghi UTF-16).
+
+**Quyền nằm ở token.** Kit liệt kê đủ mọi tool cho mọi người; SSB kiểm quyền của token lúc gọi. Tool ghi «chỉ token …» mà token của bạn chưa có quyền thì trả `HTTP 403` kèm lý do — xin sysadmin cấp quyền, không cần đổi gì trong kit. SSB thêm tool mới thì agent MCP thấy ngay (cầu nối chuyển nguyên danh sách); kit chỉ cập nhật để agent biết khi nào dùng và có lệnh CLI.
 
 ## Sự cố
 
@@ -53,6 +58,7 @@ python ssb.py get /api/v1                            # danh sách mọi đườn
 |---|---|
 | `python ssb.py check` báo `chưa có token` / `sai định dạng` | Dán lại bằng nút **Copy** (một dòng, `ssbm_` + 40 ký tự, không thêm gì) |
 | `HTTP 403` | Chưa dán token, hoặc token sai/thu hồi/đang ngủ (90 ngày không dùng) → báo sysadmin (tab Kênh máy: Kích hoạt lại hoặc cấp mới). SSB chỉ nhận token — không còn cho đọc theo IP |
+| `HTTP 403` kèm «chỉ dành cho …», trong khi `python ssb.py check` OK | Token đúng nhưng chưa có quyền dùng tool đó → xin sysadmin cấp quyền cho tài khoản của bạn |
 | `Không kết nối được SSB` | Ở văn phòng: kiểm mạng LAN. Ở ngoài văn phòng: đặt env `SSB_URL` theo địa chỉ sysadmin cung cấp (hoặc sửa `host.txt` trên máy mình) |
 | Cursor: server `ssb` đỏ | Mở đúng thư mục repo làm workspace (không phải thư mục cha). Còn đỏ → sửa `args` trong `.cursor/mcp.json` thành đường dẫn tuyệt đối tới `ssb_mcp_bridge.py` |
 | `python` không chạy | Cài Python ≥ 3.10; Windows có thể thay `python` bằng `py` trong `.cursor/mcp.json` |

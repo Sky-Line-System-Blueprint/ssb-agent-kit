@@ -6,3 +6,4 @@ Repo này nối Claude Code với **SSB** qua MCP server `ssb` (`.mcp.json` → 
 - Không có MCP → `python ssb.py <lệnh>` (xem `python ssb.py -h`).
 - Mã phải lấy từ tool, không đoán. Ambiguous → hỏi người dùng. Trả lời bằng tiếng Việt, ghi mã kèm tên.
 - Lỗi token → `machine_token.txt` + `python ssb.py check`.
+- Quyền nằm ở token: tool từ chối «chỉ dành cho …» khi `check` OK = token chưa có quyền tool đó → báo người dùng xin sysadmin, không thử đường khác.
