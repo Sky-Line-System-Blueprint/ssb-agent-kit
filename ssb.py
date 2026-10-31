@@ -20,9 +20,12 @@
   python ssb.py functions [DV12] [--level f2]  # chức năng nhiệm vụ F0→F1→F2 (bỏ DV = mọi đơn vị)
   python ssb.py deferred                      # sổ tồn đọng dữ liệu (vấn đề QA đã ghi nhận, mới nhất trước)
   python ssb.py flow [QT_TCNS_01]             # luồng lưu đồ Mục 9 (nút/cạnh) — chỉ token qa_admin/analyst
+  python ssb.py flow-steps [QT_TCNS_01] --out steps.json   # RACI + biểu mẫu từng bước bản nháp, cả lô — chỉ token qa_admin/analyst
   python ssb.py get /api/v1/...               # gọi thẳng đường bất kỳ (xem: python ssb.py get /api/v1)
 
-In JSON ra stdout. Mã thoát: 0 ổn · 2 lỗi tham số · 3 lỗi mạng/HTTP.
+In JSON ra stdout (`--out FILE`: ghi file UTF-8 — dùng cho dữ liệu lớn, PowerShell `>` ghi UTF-16).
+Mã thoát: 0 ổn · 2 lỗi tham số · 3 lỗi mạng/HTTP.
+Quyền nằm ở token: tool nào token chưa có quyền → HTTP 403 kèm lý do — xin sysadmin, kit không phải sửa.
 """
 from __future__ import annotations
 
@@ -77,6 +80,7 @@ ROUTES = {
     "functions": lambda a: ("/api/v1/functions", {"owner_unit": a.value, "level": a.level}),
     "deferred": lambda a: ("/api/v1/deferred-issues", None),
     "flow": lambda a: ("/api/v1/f3/flow", {"f3_id": a.value}),
+    "flow-steps": lambda a: ("/api/v1/f3/flow/steps", {"f3_id": a.value}),
     "get": lambda a: (a.value or "/api/v1", None),
 }
 
@@ -94,6 +98,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--seq", type=int, default=None, help="version: số thứ tự phiên bản (bỏ = đang hiệu lực)")
     ap.add_argument("--flowchart", action="store_true", help="version: kèm lưu đồ")
     ap.add_argument("--level", choices=["f0", "f1", "f2"], default=None, help="functions: chỉ một tầng")
+    ap.add_argument("--out", default=None, help="ghi JSON ra file UTF-8 thay vì in (dữ liệu lớn: flow, flow-steps)")
     a = ap.parse_args(argv)
     if a.cmd == "check":
         problem = ssb_config.token_problem()
@@ -127,7 +132,12 @@ def main(argv: list[str] | None = None) -> int:
     except Exception as e:
         print(f"Không kết nối được SSB {ssb_config.host()} ({e})", file=sys.stderr)
         return 3
-    print(json.dumps(data, ensure_ascii=False, indent=2))
+    text = json.dumps(data, ensure_ascii=False, indent=2)
+    if a.out:
+        Path(a.out).write_text(text + "\n", encoding="utf-8")
+        print(f"đã ghi {a.out} ({len(text.encode('utf-8')) // 1024} KB)", file=sys.stderr)
+        return 0
+    print(text)
     return 0
 
 

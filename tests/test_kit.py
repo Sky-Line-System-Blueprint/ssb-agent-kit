@@ -148,6 +148,8 @@ class TestCli(unittest.TestCase):
             ("deferred", ""): "/api/v1/deferred-issues",
             ("flow", ""): "/api/v1/f3/flow",
             ("flow", "QT_TCNS_01"): "/api/v1/f3/flow?f3_id=QT_TCNS_01",
+            ("flow-steps", ""): "/api/v1/f3/flow/steps",
+            ("flow-steps", "QT_TCNS_01"): "/api/v1/f3/flow/steps?f3_id=QT_TCNS_01",
         }
         for (cmd, val), path in cases.items():
             rc, seen, _ = self._run([cmd, val] if val else [cmd])
@@ -165,6 +167,16 @@ class TestCli(unittest.TestCase):
                          "http://h:8765/api/v1/f3/versions/QT_KT%C4%90BCL_01?seq=1&flowchart=true")
         rc, seen, _ = self._run(["functions", "DV20", "--level", "f2"])
         self.assertEqual(seen[0].full_url, "http://h:8765/api/v1/functions?owner_unit=DV20&level=f2")
+
+    def test_out_writes_utf8_file(self) -> None:
+        out = ROOT / "tests" / "_out_flow_steps.json"
+        try:
+            with mock.patch("sys.stderr", io.StringIO()):
+                rc, _, printed = self._run(["flow-steps", "--out", str(out)], body='{"items": [{"title": "Tuyển dụng"}]}'.encode("utf-8"))
+            self.assertEqual((rc, printed), (0, ""))
+            self.assertEqual(json.loads(out.read_text(encoding="utf-8")), {"items": [{"title": "Tuyển dụng"}]})
+        finally:
+            out.unlink(missing_ok=True)
 
     def test_missing_value(self) -> None:
         with mock.patch("sys.stderr", io.StringIO()):
