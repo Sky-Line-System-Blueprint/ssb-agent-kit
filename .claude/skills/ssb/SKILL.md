@@ -1,6 +1,6 @@
 ---
 name: ssb
-description: Hỏi SSB (Sky-Line System Blueprint) — cơ cấu tổ chức (đơn vị DV###, chức danh VT###, cấp bậc), sổ đăng ký văn bản DOC / biểu mẫu BM, trách nhiệm của chức danh trong quy trình (RACI), trạng thái hệ thống — qua MCP server `ssb` (hoặc CLI `python ssb.py` khi chưa có MCP). Dùng khi người dùng hỏi «chức danh X mã gì», «ban nào phụ trách Y», «có quy chế/biểu mẫu về Z không», «DOC.TCNS.01 ban hành chưa», «chức danh X chịu trách nhiệm gì trong quy trình», «bước/biểu mẫu Y ai làm, ai duyệt», «đổi chức danh X ảnh hưởng gì», «quy trình X gồm những bước/KPI/biểu mẫu gì», «X báo cáo ai / đơn vị Y thuộc đâu», «lấy lưu đồ / RACI và biểu mẫu từng bước của mọi quy trình để phân tích», hoặc cần mã chuẩn để viết tài liệu, RACI, báo cáo.
+description: Hỏi SSB (Sky-Line System Blueprint) — cơ cấu tổ chức (đơn vị DV###, chức danh VT###, cấp bậc), sổ đăng ký văn bản DOC / biểu mẫu BM, trách nhiệm của chức danh trong quy trình (RACI), trạng thái hệ thống — qua MCP server `ssb` (hoặc CLI `python ssb.py` khi chưa có MCP). Dùng khi người dùng hỏi «chức danh X mã gì», «ban nào phụ trách Y», «có quy chế/biểu mẫu về Z không», «DOC.TCNS.01 ban hành chưa», «chức danh X chịu trách nhiệm gì trong quy trình», «bước/biểu mẫu Y ai làm, ai duyệt», «đổi chức danh X ảnh hưởng gì», «quy trình X gồm những bước/KPI/biểu mẫu gì», «X báo cáo ai / đơn vị Y thuộc đâu», «lấy lưu đồ / RACI và biểu mẫu từng bước của mọi quy trình để phân tích», «bộ quy trình P kỳ này có gì, vị trí X làm gì trong bộ P», hoặc cần mã chuẩn để viết tài liệu, RACI, báo cáo.
 ---
 
 # SSB — hỏi dữ liệu tổ chức & sổ văn bản
@@ -38,6 +38,10 @@ SSB là nguồn sự thật về tổ chức và sổ văn bản của Sky-Line.
 | **Sổ tồn đọng dữ liệu** — vấn đề dữ liệu QA đã ghi nhận để rà sau (tra trước khi báo lỗi một QT/DOC/vị trí) | `list_deferred_issues` | `python ssb.py deferred` |
 | **Luồng lưu đồ Mục 9** của quy trình (nút/cạnh — đo độ phức tạp lưu đồ); **chỉ token qa_admin/analyst** | `f3_flow {f3_id?}` | `python ssb.py flow QT_TCNS_01` |
 | **RACI + biểu mẫu/tài liệu từng bước** của mọi quy trình (bản nháp, một lần gọi cả lô — phân tích theo vai trò/biểu mẫu/đơn vị, ghép với `f3_flow` theo `node_id`); **chỉ token qa_admin/analyst** | `f3_flow_steps {f3_id?}` | `python ssb.py flow-steps --out steps.json` |
+| **Bộ quy trình P đã phát hành** — danh sách bộ (kỳ, lần dựng, nhãn thí điểm, số P); **chỉ token qa_admin** | `p_sets` | `python ssb.py p-sets` |
+| **Một P đủ ruột** (bước, RACI, tài liệu, luồng; tên đã đổi trong lõi) — mã `P<kỳ>-<số>`; **chỉ token qa_admin** | `p_get {code, build?}` | `python ssb.py p P2026T-001` |
+| **Vị trí VT### trong bộ P** — chủ P, giữ chuỗi, ô R/A/C/I từng bước; **chỉ token qa_admin** | `p_role {vt, ky?, build?}` | `python ssb.py p-role VT008` |
+| **Báo cáo phát hành bộ P** (tóm tắt, phát hiện, mục treo đã chấp nhận); **chỉ token qa_admin** | `p_report {ky?, build?}` | `python ssb.py p-report --out report.json` |
 
 ## Mô hình tổ chức
 
@@ -80,6 +84,14 @@ SSB là nguồn sự thật về tổ chức và sổ văn bản của Sky-Line.
    - `raci {R, A, C, I}`: mỗi ô là danh sách `{token, kind, vt, unit?, combo?, abbrev?}` — `kind`: `direct` (ghi thẳng mã) · `unit` (trưởng đơn vị) · `combo` (nhóm tĩnh) · `rule` (vai tương đối, như mục 8) · `other`. `other` có `abbrev: pending_org` = vị trí chưa có trong cây tổ chức, `abbrev: external` = bên ngoài trường; `other` không `abbrev` = chữ tắt chưa được duyệt — đếm riêng, không gán VT.
    - `refs`: mã FM/TL ghi ở bước, `name` lấy từ chính quy trình, kèm `bm` (biểu mẫu) hoặc `doc` (văn bản) nối qua sổ — không có tên DOC trong sổ; cần thì `get_doc {id}`.
    - Cả lô khoảng 1 MB → lấy bằng CLI `python ssb.py flow-steps --out steps.json` rồi đọc file bằng code; đừng gọi MCP không `f3_id` (đổ cả lô vào ngữ cảnh).
+13. **Bộ quy trình P (`p_sets` / `p_get` / `p_role` / `p_report`)** (SSB ADR-099) — bộ P do engine dựng từ toàn bộ dữ liệu SSB và phát hành theo kỳ; bộ đã phát hành không đổi. Chỉ bộ đã phát hành, không có bản dựng thử. Khác `f3_*`: F3 là hồ sơ từng quy trình, bộ P là bản tổng hợp.
+   - Chọn bộ: bỏ `ky` = bộ phát hành gần nhất; `build` phải kèm `ky` (`p_get` lấy kỳ từ mã P). Mã P dạng `P<kỳ>-<số>`, vd. `P2026T-001`.
+   - `pilot: true` / `label: "thí điểm"` = bộ chưa phải quy định chính thức — luôn nói rõ khi trả lời. Ghi kèm kỳ và lần dựng (`ky`, `build_no`).
+   - `blocked: true` (kèm `blocked_reason`) = P không hiệu lực trong bộ — đừng trích như quy trình đang áp dụng.
+   - Tên trong P là **tên lúc dựng**. Có `name_now` = lõi đã đổi tên sau đó; `gone: true` = mã không còn trong lõi. `core_drift` gom cả hai; trả lời thì nêu cả tên lúc dựng lẫn tên nay.
+   - `(tài liệu hạn chế)` = tên văn bản bị che — không đoán.
+   - `p_role` liệt kê vị trí ghi đích danh (chủ P, giữ chuỗi, R/A/C/I). Vai theo luật (QLTT, GĐB) không gắn mã vị trí nên không có ở đây — nói vậy, đừng kết luận «vị trí không tham gia». `missing: true` = mã vị trí không có trong lõi.
+   - `p_report` cỡ vài trăm KB → dùng `python ssb.py p-report --out report.json` rồi đọc file bằng code.
 
 ## Ví dụ
 
@@ -91,4 +103,5 @@ SSB là nguồn sự thật về tổ chức và sổ văn bản của Sky-Line.
 - «Ban Tổ chức - Nhân sự có những chức năng gì?» → `resolve_owner {label: "Ban Tổ chức - Nhân sự"}` → DV12 → `get_functions {owner_unit: "DV12"}` → liệt kê F0, dưới mỗi F0 là F1 (theo `ord`); chỉ đi xuống F2 khi người dùng hỏi chi tiết.
 - «QT_TCNS_01 có đang bị ghi nhận vấn đề dữ liệu nào không?» → `list_deferred_issues` → lọc mục có «QT_TCNS_01» trong `issue` → trích `TD-####` + nội dung.
 - «Vị trí nào làm R nhiều nhất trên mọi quy trình, mỗi bước dùng bao nhiêu biểu mẫu?» → `python ssb.py flow-steps --out steps.json` → viết script đọc file: đếm `raci.R[].vt` và `len(refs)` theo bước, tách riêng `other`; nói rõ dữ liệu là bản nháp, QT `flow_current: false` liệt kê riêng.
+- «Bộ P kỳ này có bao nhiêu quy trình, GĐ Ban TCNS làm A ở đâu?» → `p_sets` (kỳ, lần dựng, nhãn thí điểm, `n_ps`) → `resolve_role` ra VT008 → `p_role {vt: "VT008"}` → đọc `raci.A` và `items[].steps` có `as: "A"`; ghi «bộ <kỳ> lần dựng N (thí điểm)».
 - «Quy trình QT_TCNS_01 có những bước nào, KPI là gì?» → `f3_version {f3_id: "QT_TCNS_01"}` → đọc `core.steps` (mã bước + tên + đầu vào/đầu ra) và `core.kpi`; ghi «phiên bản seq N, đã thừa nhận/ban hành».

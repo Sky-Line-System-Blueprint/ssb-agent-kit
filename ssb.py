@@ -21,6 +21,10 @@
   python ssb.py deferred                      # sổ tồn đọng dữ liệu (vấn đề QA đã ghi nhận, mới nhất trước)
   python ssb.py flow [QT_TCNS_01]             # luồng lưu đồ Mục 9 (nút/cạnh) — chỉ token qa_admin/analyst
   python ssb.py flow-steps [QT_TCNS_01] --out steps.json   # RACI + biểu mẫu từng bước bản nháp, cả lô — chỉ token qa_admin/analyst
+  python ssb.py p-sets                        # bộ quy trình P đã phát hành (mới nhất trước) — chỉ token qa_admin
+  python ssb.py p P2026T-001 [--build 1]      # một P đủ ruột (bước, RACI, tài liệu, tên lõi đổi) — chỉ token qa_admin
+  python ssb.py p-role VT008 [--ky 2026T --build 1]   # vị trí → có mặt ở P nào, vai gì — chỉ token qa_admin
+  python ssb.py p-report [--ky 2026T] --out report.json   # báo cáo phát hành bộ P (lớn) — chỉ token qa_admin
   python ssb.py get /api/v1/...               # gọi thẳng đường bất kỳ (xem: python ssb.py get /api/v1)
 
 In JSON ra stdout (`--out FILE`: ghi file UTF-8 — dùng cho dữ liệu lớn, PowerShell `>` ghi UTF-16).
@@ -81,6 +85,10 @@ ROUTES = {
     "deferred": lambda a: ("/api/v1/deferred-issues", None),
     "flow": lambda a: ("/api/v1/f3/flow", {"f3_id": a.value}),
     "flow-steps": lambda a: ("/api/v1/f3/flow/steps", {"f3_id": a.value}),
+    "p-sets": lambda a: ("/api/v1/p/sets", None),
+    "p": lambda a: (f"/api/v1/p/items/{_q(a.value)}", {"build": a.build}),
+    "p-role": lambda a: (f"/api/v1/p/roles/{_q(a.value)}", {"ky": a.ky, "build": a.build}),
+    "p-report": lambda a: ("/api/v1/p/report", {"ky": a.ky, "build": a.build}),
     "get": lambda a: (a.value or "/api/v1", None),
 }
 
@@ -98,7 +106,9 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--seq", type=int, default=None, help="version: số thứ tự phiên bản (bỏ = đang hiệu lực)")
     ap.add_argument("--flowchart", action="store_true", help="version: kèm lưu đồ")
     ap.add_argument("--level", choices=["f0", "f1", "f2"], default=None, help="functions: chỉ một tầng")
-    ap.add_argument("--out", default=None, help="ghi JSON ra file UTF-8 thay vì in (dữ liệu lớn: flow, flow-steps)")
+    ap.add_argument("--ky", default=None, help="p-role, p-report: kỳ của bộ P (bỏ = bộ phát hành gần nhất)")
+    ap.add_argument("--build", type=int, default=None, help="p, p-role, p-report: lần dựng (p-role/p-report cần kèm --ky)")
+    ap.add_argument("--out", default=None, help="ghi JSON ra file UTF-8 thay vì in (dữ liệu lớn: flow, flow-steps, p-report)")
     a = ap.parse_args(argv)
     if a.cmd == "check":
         problem = ssb_config.token_problem()
@@ -116,7 +126,7 @@ def main(argv: list[str] | None = None) -> int:
         except Exception as e:
             print(f"server: không kết nối được ({e}) — kiểm LAN / host.txt")
             return 3
-    if a.cmd in ("role", "owner", "combo", "docs", "forms", "doc", "form", "duties", "impact", "version") and not a.value:
+    if a.cmd in ("role", "owner", "combo", "docs", "forms", "doc", "form", "duties", "impact", "version", "p", "p-role") and not a.value:
         print(f"thiếu tham số: python ssb.py {a.cmd} \"<giá trị>\"", file=sys.stderr)
         return 2
     if a.cmd == "steps" and not (a.value or a.form):
