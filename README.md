@@ -45,6 +45,10 @@ python ssb.py functions DV12                         # chức năng nhiệm vụ
 python ssb.py deferred                               # sổ tồn đọng dữ liệu — vấn đề QA đã ghi nhận để rà sau
 python ssb.py flow QT_TCNS_01                        # luồng lưu đồ Mục 9 (nút/cạnh) — chỉ token qa_admin/analyst
 python ssb.py flow-steps --out steps.json            # RACI + biểu mẫu từng bước mọi quy trình (bản nháp, ~1 MB) — chỉ token qa_admin/analyst
+python ssb.py p-sets                                # bộ quy trình P đã phát hành — chỉ token qa_admin
+python ssb.py p P2026T-001                          # một P đủ ruột — chỉ token qa_admin
+python ssb.py p-role VT008                          # vị trí → có mặt ở P nào, vai gì — chỉ token qa_admin
+python ssb.py p-report --out report.json            # báo cáo phát hành bộ P (~500 KB) — chỉ token qa_admin
 python ssb.py get /api/v1                            # danh sách mọi đường REST
 ```
 

@@ -150,6 +150,10 @@ class TestCli(unittest.TestCase):
             ("flow", "QT_TCNS_01"): "/api/v1/f3/flow?f3_id=QT_TCNS_01",
             ("flow-steps", ""): "/api/v1/f3/flow/steps",
             ("flow-steps", "QT_TCNS_01"): "/api/v1/f3/flow/steps?f3_id=QT_TCNS_01",
+            ("p-sets", ""): "/api/v1/p/sets",
+            ("p", "P2026T-001"): "/api/v1/p/items/P2026T-001",
+            ("p-role", "VT008"): "/api/v1/p/roles/VT008",
+            ("p-report", ""): "/api/v1/p/report",
         }
         for (cmd, val), path in cases.items():
             rc, seen, _ = self._run([cmd, val] if val else [cmd])
@@ -167,6 +171,12 @@ class TestCli(unittest.TestCase):
                          "http://h:8765/api/v1/f3/versions/QT_KT%C4%90BCL_01?seq=1&flowchart=true")
         rc, seen, _ = self._run(["functions", "DV20", "--level", "f2"])
         self.assertEqual(seen[0].full_url, "http://h:8765/api/v1/functions?owner_unit=DV20&level=f2")
+        rc, seen, _ = self._run(["p", "P2026T-001", "--build", "2"])
+        self.assertEqual(seen[0].full_url, "http://h:8765/api/v1/p/items/P2026T-001?build=2")
+        rc, seen, _ = self._run(["p-role", "VT008", "--ky", "2026T", "--build", "1"])
+        self.assertEqual(seen[0].full_url, "http://h:8765/api/v1/p/roles/VT008?ky=2026T&build=1")
+        rc, seen, _ = self._run(["p-report", "--ky", "2026T"])
+        self.assertEqual(seen[0].full_url, "http://h:8765/api/v1/p/report?ky=2026T")
 
     def test_out_writes_utf8_file(self) -> None:
         out = ROOT / "tests" / "_out_flow_steps.json"
@@ -183,6 +193,8 @@ class TestCli(unittest.TestCase):
             self.assertEqual(ssb.main(["role"]), 2)
             self.assertEqual(ssb.main(["duties"]), 2)
             self.assertEqual(ssb.main(["steps"]), 2)
+            self.assertEqual(ssb.main(["p"]), 2)
+            self.assertEqual(ssb.main(["p-role"]), 2)
             self.assertEqual(ssb.main(["version"]), 2)
 
 
