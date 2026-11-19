@@ -18,7 +18,7 @@ SSB là nguồn sự thật về tổ chức và sổ văn bản của Sky-Line.
 
 | Cần | MCP tool | CLI tương đương |
 |---|---|---|
-| Nhãn chức danh tự do → mã **VT###** | `resolve_role {label}` | `python ssb.py role "<nhãn>"` |
+| Nhãn vị trí tự do → mã **VT###** (kèm `resolved_core`: chức danh **CD###**, nhóm **CB###**, trường **HP###** nếu khớp) | `resolve_role {label}` | `python ssb.py role "<nhãn>"` |
 | Tên ban/đơn vị → mã **DV###** + trưởng ban | `resolve_owner {label}` | `python ssb.py owner "<tên ban>"` |
 | Chữ tắt nhóm RACI (GVBM, CB-GV-NV…) → nhãn gộp chuẩn | `resolve_combo {token}` | `python ssb.py combo "<token>"` |
 | Tìm văn bản (quy chế, quy định, quy trình…) | `search_doc {q, limit}` | `python ssb.py docs "<từ khóa>"` |
@@ -28,7 +28,7 @@ SSB là nguồn sự thật về tổ chức và sổ văn bản của Sky-Line.
 | Ý nghĩa các trường (kind, status, owner_unit, doc_no…) | `get_schema` | `python ssb.py get /api/v1/schema` |
 | Tình trạng hệ thống (số liệu sổ, F3, backup) | `get_system_status` | `python ssb.py status` |
 | Cây tổ chức đầy đủ (lớn) — đơn vị thuộc đâu, vị trí ở đơn vị nào, ai báo cáo ai | `get_org_live` | `python ssb.py get /api/v1/org-live` |
-| Bảng org phẳng (units, roles, ranks, sites, positions, position_relations) | `get_org_tables {tables?}` | `python ssb.py get "/api/v1/org-tables?tables=positions"` |
+| Bảng org phẳng (units, roles, ranks, sites, positions, position_relations, schools, duty_titles) | `get_org_tables {tables?}` | `python ssb.py get "/api/v1/org-tables?tables=positions"` |
 | Chức danh VT### → trách nhiệm trong quy trình (bước, R/A/C/I, biểu mẫu, SLA) | `f3_role_duties {vt}` | `python ssb.py duties VT008` |
 | Bước của quy trình → ai làm / duyệt / được hỏi / được báo | `f3_step_actors {f3_id, step?}` | `python ssb.py steps QT_TCNS_01 --step B1` |
 | Biểu mẫu / văn bản → những bước dùng nó + ai làm | `f3_step_actors {form}` | `python ssb.py steps --form BM.TCNS.07` |
@@ -47,11 +47,12 @@ SSB là nguồn sự thật về tổ chức và sổ văn bản của Sky-Line.
 
 - **Đơn vị** `DV###`. Cây nhiều gốc: đơn vị cấp `governance`/`top`/`high` (HĐQT, BTGĐ, các ban, cơ sở…) chưa khai trực thuộc là gốc riêng (không còn gốc chung `DV00`). Đơn vị có ở mỗi cơ sở thì có bản mẫu `DV###` và bản theo cơ sở `DV###|CS#` (tên, cấp, loại lấy theo bản mẫu).
 - **Chức năng nhiệm vụ** (SSB ADR-086): `get_functions` trả `{f0, f1, f2}`. F0 có `owner_unit` (ban hoặc `DV20` = bộ chung cho mọi cơ sở); F1 trỏ cha bằng `f0_id`, F2 bằng `f1_id`; thứ tự theo `ord`. Lọc `owner_unit` = F0 của đơn vị đó + F1/F2 con. Chưa có liên kết F2 → quy trình F3 (chưa gán) và chưa có RACI theo F2 — đừng suy ra ai làm nhiệm vụ nào từ catalog này.
-- **Chức danh** `VT###` (tên, cấp bậc). **Vị trí** = chức danh đặt trong một đơn vị ở một nơi làm việc: `VT###` hoặc `VT###|CS#`. Các tool `f3_*` nhận chức danh (`VT###`, bỏ hậu tố `|CS#`).
+- **Vị trí mẫu** `VT###` (tên vị trí, cấp bậc). **Vị trí** = vị trí mẫu đặt trong một đơn vị ở một nơi làm việc: `VT###` hoặc `VT###|CS#`. Các tool `f3_*` nhận vị trí mẫu (`VT###`, bỏ hậu tố `|CS#`).
+- **Chức danh theo nhiệm vụ** `CD###` (SSB ADR-098) giao cho người đang giữ vị trí, không phải vị trí trong cây đơn vị: cấp trường (`CD###|HP###` — Hiệu trưởng, GVCN…), cấp cơ sở (`CD###|CS#`) hoặc cấp công ty (`CD###`). Trường `HP###` gắn cơ sở qua `sites.preschool_id` / `k12school_id`.
 - **Trực thuộc** (`belongs_to`, lưu) khác **chịu điều hành** (`manager_unit`, dẫn xuất): một ban là gốc riêng (không trực thuộc ai) nhưng do Tổng Giám đốc điều hành. Tuyến điều hành không lưu riêng mà suy ra từ cấp trên trực tiếp của người đứng đầu đơn vị (`owner`).
-- **Một mã `VT###` hai nghĩa**: trong bảng `roles` là chức danh; trong bảng `positions` là vị trí khối văn phòng của chức danh đó (`VT###|CS#` = vị trí ở cơ sở). Xem `get_schema` → `conventions`.
+- **Một mã `VT###` hai nghĩa**: trong bảng `roles` là vị trí mẫu; trong bảng `positions` là vị trí khối văn phòng của vị trí mẫu đó (`VT###|CS#` = vị trí ở cơ sở). Xem `get_schema` → `conventions`.
 - **Quan hệ giữa vị trí** (`position_relations.kind`): `reports_to` (cấp trên trực tiếp, mỗi vị trí một) · `professional` (chỉ đạo chuyên môn) · `serves` (phục vụ / hỗ trợ, vd. nhân viên IT phục vụ GĐ cơ sở) · `outsource_managed_by` (đơn vị thuê ngoài do vị trí nào quản lý).
-- `get_org_live` là **cây cấu trúc** (SSB ADR-079): mỗi đơn vị có `parent` (cha trong cây trực thuộc — luật `tree_parent`, KHÔNG phải tuyến điều hành), `belongs_to`, `manager_unit` (chịu điều hành), `owner`, `site_id`, `template_id`, `is_template`; mỗi **vị trí** nằm ở đúng đơn vị của nó, có `site_id`, `reports_to`, `professional[]`, `serves[]`, `outsource_managed_by`. Lát `organization_cs` = đơn vị mẫu + bản cơ sở; gốc của một lát có thể có `parent` ở lát khác. Sơ đồ theo tuyến điều hành chỉ có trên giao diện SSB (tab Sơ đồ).
+- `get_org_live` là **cây cấu trúc** (SSB ADR-079): mỗi đơn vị có `parent` (cha trong cây trực thuộc — luật `tree_parent`, KHÔNG phải tuyến điều hành), `belongs_to`, `manager_unit` (chịu điều hành), `owner`, `site_id`, `template_id`, `is_template`; mỗi **vị trí** nằm ở đúng đơn vị của nó, có `site_id`, `reports_to`, `professional[]`, `serves[]`, `outsource_managed_by`. Lát `organization_cs` = đơn vị mẫu + bản cơ sở; gốc của một lát có thể có `parent` ở lát khác. Sơ đồ theo tuyến điều hành chỉ có trên giao diện SSB (tab Sơ đồ). Nhánh `school_system` (ADR-098 bước 4): `sites[]` → `schools[]` (mầm non trước, phổ thông sau) → `duty_titles` dạng cây theo `reports_to` (con ở `subordinates`), kèm `duty_titles` cấp cơ sở và `company.duty_titles` cấp công ty.
 
 ## Quy tắc
 
