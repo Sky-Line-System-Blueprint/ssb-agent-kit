@@ -150,6 +150,8 @@ class TestCli(unittest.TestCase):
             ("flow", "QT_TCNS_01"): "/api/v1/f3/flow?f3_id=QT_TCNS_01",
             ("flow-steps", ""): "/api/v1/f3/flow/steps",
             ("flow-steps", "QT_TCNS_01"): "/api/v1/f3/flow/steps?f3_id=QT_TCNS_01",
+            ("x-log", ""): "/api/v1/f3/x-log",
+            ("x-log", "QT_TCNS_01"): "/api/v1/f3/x-log?f3_id=QT_TCNS_01",
             ("p-sets", ""): "/api/v1/p/sets",
             ("p", "P2026T-001"): "/api/v1/p/items/P2026T-001",
             ("p-role", "VT008"): "/api/v1/p/roles/VT008",
@@ -177,6 +179,26 @@ class TestCli(unittest.TestCase):
         self.assertEqual(seen[0].full_url, "http://h:8765/api/v1/p/roles/VT008?ky=2026T&build=1")
         rc, seen, _ = self._run(["p-report", "--ky", "2026T"])
         self.assertEqual(seen[0].full_url, "http://h:8765/api/v1/p/report?ky=2026T")
+        rc, seen, _ = self._run(["x-log", "--from", "2026-11-01", "--to", "2026-11-30", "--e", "E2"])
+        self.assertEqual(seen[0].full_url, "http://h:8765/api/v1/f3/x-log?from=2026-11-01&to=2026-11-30&e=E2")
+        rc, seen, _ = self._run(["x-core", "QT_KTĐBCL_06", "--hash", "ab12"])
+        self.assertEqual(seen[0].full_url, "http://h:8765/api/v1/f3/x-core?f3_id=QT_KT%C4%90BCL_06&content_hash=ab12")
+
+    def test_x_log_gom_du_trang(self) -> None:
+        pages = iter([
+            b'{"count": 2, "total": 3, "offset": 0, "truncated": true, "next_offset": 2, "rows": [{"e": "E0"}, {"e": "E2"}]}',
+            b'{"count": 1, "total": 3, "offset": 2, "truncated": false, "next_offset": null, "rows": [{"e": "E3"}]}',
+        ])
+        seen: list = []
+        buf = io.StringIO()
+        with mock.patch.object(ssb_config, "token", return_value=TOK), mock.patch.object(ssb_config, "host", return_value="http://h:8765"),              mock.patch("urllib.request.urlopen", side_effect=lambda req, timeout=None: (seen.append(req), FakeResp(next(pages)))[1]),              mock.patch("sys.stdout", buf):
+            rc = ssb.main(["x-log", "--e", "E2"])
+        self.assertEqual(rc, 0)
+        self.assertEqual([r.full_url for r in seen], ["http://h:8765/api/v1/f3/x-log?e=E2",
+                                                      "http://h:8765/api/v1/f3/x-log?e=E2&offset=2"])
+        data = json.loads(buf.getvalue())
+        self.assertEqual((data["count"], data["total"], data["truncated"], data["next_offset"]), (3, 3, False, None))
+        self.assertEqual([r["e"] for r in data["rows"]], ["E0", "E2", "E3"])
 
     def test_out_writes_utf8_file(self) -> None:
         out = ROOT / "tests" / "_out_flow_steps.json"
@@ -196,6 +218,8 @@ class TestCli(unittest.TestCase):
             self.assertEqual(ssb.main(["p"]), 2)
             self.assertEqual(ssb.main(["p-role"]), 2)
             self.assertEqual(ssb.main(["version"]), 2)
+            self.assertEqual(ssb.main(["x-core", "QT_TCNS_01"]), 2)
+            self.assertEqual(ssb.main(["x-core", "--hash", "ab12"]), 2)
 
 
 class TestConfigFiles(unittest.TestCase):
