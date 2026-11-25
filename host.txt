@@ -1,2 +1,2 @@
 # Địa chỉ SSB Governance (8765). Env SSB_URL ghi đè file này.
-http://192.168.10.182:8765
+https://ssb-gov.skylineschool.edu.vn

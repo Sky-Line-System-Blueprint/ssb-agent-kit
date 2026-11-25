@@ -122,6 +122,9 @@ def main(argv: list[str] | None = None) -> int:
         problem = ssb_config.token_problem()
         print(f"host  : {ssb_config.host()}")
         print(f"token : {'OK ' + ssb_config.token()[:9] + '…' if not problem else problem}")
+        if ssb_config.token_source() == ssb_config.LEGACY_TOKEN_FILE:
+            print(f"CẢNH BÁO: token đang ở {ssb_config.LEGACY_TOKEN_FILE} (git theo dõi, repo public) — chuyển sang "
+                  f"{ssb_config.TOKEN_FILE} rồi xóa dòng token khỏi {ssb_config.LEGACY_TOKEN_FILE}")
         try:
             idx = get("/api/v1")
             print(f"server: OK — {len(idx.get('routes') or [])} đường REST")
@@ -132,7 +135,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"quyền : HTTP {e.code} — {'token sai/thu hồi hoặc chưa dán' if e.code in (401, 403) else 'lỗi server'}")
             return 3
         except Exception as e:
-            print(f"server: không kết nối được ({e}) — kiểm LAN / host.txt")
+            print(f"server: không kết nối được ({e}) — kiểm mạng công ty / host.txt")
             return 3
     if a.cmd in ("role", "owner", "combo", "docs", "forms", "doc", "form", "duties", "impact", "version", "p", "p-role") and not a.value:
         print(f"thiếu tham số: python ssb.py {a.cmd} \"<giá trị>\"", file=sys.stderr)

@@ -5,7 +5,7 @@ Cho **agent AI** (Cursor, Claude Code) hỏi thẳng **SSB** — cơ cấu tổ 
 ## Cài (3 bước, một lần)
 
 1. `git clone https://github.com/Sky-Line-System-Blueprint/ssb-agent-kit.git` (repo public — không cần quyền; quyền đọc dữ liệu nằm ở **token**).
-2. Xin sysadmin **token kênh máy**: SSB Governance `http://192.168.10.182:8765` → tab **Kênh máy** → «Token kênh máy — theo người» → bấm **Copy**. Mở `machine_token.txt`, dán vào **dòng trống cuối file**, lưu. Kiểm:
+2. Xin sysadmin **token kênh máy**: SSB Governance `https://ssb-gov.skylineschool.edu.vn` → tab **Kênh máy** → «Token kênh máy — theo người» → bấm **Copy**. Tạo file `machine_token.local.txt` cạnh `ssb.py`, dán token vào một dòng, lưu (git bỏ qua file này — repo public, token không lọt vào commit). Kiểm:
    ```
    python ssb.py check
    ```
@@ -20,8 +20,9 @@ Xong — hỏi agent tự nhiên: «mã chức danh giám đốc ban tổ chức
 
 | File | Vai trò |
 |---|---|
-| `machine_token.txt` | Token của bạn (dán 1 lần; **không commit** sau khi dán) |
-| `host.txt` | Địa chỉ SSB (mặc định `http://192.168.10.182:8765`; env `SSB_URL` ghi đè) |
+| `machine_token.local.txt` | Token của bạn (tự tạo, dán 1 lần; `.gitignore` bỏ qua) |
+| `machine_token.txt` | File mẫu cũ — máy đã dán token ở đây vẫn chạy, nhưng `check` nhắc chuyển sang `machine_token.local.txt` |
+| `host.txt` | Địa chỉ SSB (mặc định `https://ssb-gov.skylineschool.edu.vn`, chỉ trong mạng công ty; env `SSB_URL` ghi đè) |
 | `ssb_mcp_bridge.py` | Cầu nối MCP stdio → `<host>/mcp` kèm token — Cursor/Claude Code tự khởi động |
 | `.cursor/mcp.json`, `.mcp.json` | Khai báo MCP server `ssb` cho Cursor / Claude Code (không chứa bí mật) |
 | `ssb.py` | CLI REST (`/api/v1/*`) — cho người hoặc agent chưa bật MCP |
@@ -65,7 +66,7 @@ Dữ liệu lớn → `--out <file>` (ghi UTF-8; trên PowerShell đừng dùng 
 | `python ssb.py check` báo `chưa có token` / `sai định dạng` | Dán lại bằng nút **Copy** (một dòng, `ssbm_` + 40 ký tự, không thêm gì) |
 | `HTTP 403` | Chưa dán token, hoặc token sai/thu hồi/đang ngủ (90 ngày không dùng) → báo sysadmin (tab Kênh máy: Kích hoạt lại hoặc cấp mới). SSB chỉ nhận token — không còn cho đọc theo IP |
 | `HTTP 403` kèm «chỉ dành cho …», trong khi `python ssb.py check` OK | Token đúng nhưng chưa có quyền dùng tool đó → xin sysadmin cấp quyền cho tài khoản của bạn |
-| `Không kết nối được SSB` | Ở văn phòng: kiểm mạng LAN. Ở ngoài văn phòng: đặt env `SSB_URL` theo địa chỉ sysadmin cung cấp (hoặc sửa `host.txt` trên máy mình) |
+| `Không kết nối được SSB` | Ở văn phòng: kiểm mạng công ty; `host.txt` phải là `https://ssb-gov.skylineschool.edu.vn` (bản kit cũ trỏ `http://192.168.10.182:8765` — `git pull`). Ở ngoài văn phòng: đặt env `SSB_URL` theo địa chỉ sysadmin cung cấp (hoặc sửa `host.txt` trên máy mình) |
 | Cursor: server `ssb` đỏ | Mở đúng thư mục repo làm workspace (không phải thư mục cha). Còn đỏ → sửa `args` trong `.cursor/mcp.json` thành đường dẫn tuyệt đối tới `ssb_mcp_bridge.py` |
 | `python` không chạy | Cài Python ≥ 3.10; Windows có thể thay `python` bằng `py` trong `.cursor/mcp.json` |
 

@@ -11,7 +11,7 @@ SSB là nguồn sự thật về tổ chức và sổ văn bản của Sky-Line.
 
 - **Ưu tiên MCP server `ssb`** (tool bên dưới). Kiểm server sống: gọi `get_system_status` hoặc `list_catalog`.
 - Không có MCP (server `ssb` không hiện / đỏ) → chạy CLI trong thư mục repo này: `python ssb.py <lệnh>` (xem bảng). Kết quả JSON như MCP.
-- Lỗi `HTTP 403` / «token sai» → báo người dùng: dán token vào `machine_token.txt` (chép bằng nút **Copy** ở tab Kênh máy 8765), rồi chạy `python ssb.py check`. Lỗi «Không kết nối được» → máy chưa vào mạng tới host trong `host.txt` (ngoài văn phòng: người dùng đặt `SSB_URL` theo địa chỉ sysadmin cung cấp).
+- Lỗi `HTTP 403` / «token sai» → báo người dùng: dán token vào `machine_token.local.txt` (tự tạo cạnh `ssb.py`; chép bằng nút **Copy** ở tab Kênh máy 8765), rồi chạy `python ssb.py check`. Lỗi «Không kết nối được» → máy chưa vào mạng tới host trong `host.txt` (ngoài văn phòng: người dùng đặt `SSB_URL` theo địa chỉ sysadmin cung cấp).
 - **Quyền nằm ở token, không ở kit.** Mọi token đều thấy đủ danh sách tool; SSB kiểm quyền của token lúc gọi. Tool từ chối với lý do «chỉ dành cho …» (REST 403, MCP lỗi tham số) trong khi `python ssb.py check` vẫn OK = token đúng nhưng chưa có quyền dùng tool đó → nói đúng vậy với người dùng, để họ xin sysadmin; **không** thử tool/đường khác để lấy cùng dữ liệu.
 
 ## Tool — chọn đúng việc

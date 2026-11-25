@@ -12,4 +12,4 @@ Workspace này nối agent với **SSB** (nguồn sự thật tổ chức + sổ
 - Mã VT###/DV### **phải** lấy từ `resolve_role` / `resolve_owner` / `get_*`; `ambiguous` → hỏi người dùng; `no_match` → nói không có, **không bịa**.
 - Không nạp `get_org_live` / danh sách đầy đủ khi chỉ cần một mục. Ghi mã kèm tên.
 - Quyền nằm ở token: mọi tool đều hiện, SSB kiểm lúc gọi. 403 kèm «chỉ dành cho …» mà `check` OK = token chưa có quyền tool đó → báo người dùng xin sysadmin, không thử đường khác.
-- 403 → nhắc dán token vào `machine_token.txt` rồi `python ssb.py check`. Repo public: **không** commit/push `machine_token.txt` sau khi dán.
+- 403 → nhắc dán token vào `machine_token.local.txt` (git bỏ qua) rồi `python ssb.py check`. Repo public: không dán token vào `machine_token.txt` (git theo dõi).
