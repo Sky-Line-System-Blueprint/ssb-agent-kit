@@ -96,6 +96,21 @@ class TestConfig(unittest.TestCase):
     def test_local_token_file_ignored_by_git(self) -> None:
         self.assertIn("*.local.txt", (ROOT / ".gitignore").read_text(encoding="utf-8").splitlines())
 
+    def test_check_and_bridge_never_print_token(self) -> None:
+        with mock.patch.object(ssb_config, "token", return_value=TOK), \
+                mock.patch.object(ssb_config, "token_source", return_value="env"), \
+                mock.patch.object(ssb, "get", side_effect=OSError("offline")), \
+                mock.patch("sys.stdout", new_callable=io.StringIO) as out:
+            ssb.main(["check"])
+        with mock.patch.object(ssb_config, "token", return_value=TOK), \
+                mock.patch.object(ssb_config, "token_source", return_value="env"), \
+                mock.patch("sys.stdin", io.StringIO("")), \
+                mock.patch("sys.stderr", new_callable=io.StringIO) as err:
+            bridge.main()
+        for text in (out.getvalue(), err.getvalue()):
+            self.assertIn("OK (env)", text)
+            self.assertNotIn("ssbm_", text)
+
 
 class TestBridge(unittest.TestCase):
     def test_request_forwarded_with_bearer_single_line(self) -> None:

@@ -121,7 +121,7 @@ def main(argv: list[str] | None = None) -> int:
     if a.cmd == "check":
         problem = ssb_config.token_problem()
         print(f"host  : {ssb_config.host()}")
-        print(f"token : {'OK ' + ssb_config.token()[:9] + '…' if not problem else problem}")
+        print(f"token : {'OK (' + ssb_config.token_source() + ')' if not problem else problem}")
         if ssb_config.token_source() == ssb_config.LEGACY_TOKEN_FILE:
             print(f"CẢNH BÁO: token đang ở {ssb_config.LEGACY_TOKEN_FILE} (git theo dõi, repo public) — chuyển sang "
                   f"{ssb_config.TOKEN_FILE} rồi xóa dòng token khỏi {ssb_config.LEGACY_TOKEN_FILE}")
