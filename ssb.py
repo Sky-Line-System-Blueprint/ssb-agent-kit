@@ -21,7 +21,7 @@
   python ssb.py deferred                      # sổ tồn đọng dữ liệu (vấn đề QA đã ghi nhận, mới nhất trước)
   python ssb.py flow [QT_TCNS_01]             # luồng lưu đồ Mục 9 (nút/cạnh) — chỉ token qa_admin/analyst
   python ssb.py flow-steps [QT_TCNS_01] --out steps.json   # RACI + biểu mẫu từng bước bản nháp, cả lô — chỉ token qa_admin/analyst
-  python ssb.py x-log [QT_TCNS_01] [--from 2026-11-01 --to 2026-11-30 --e E2] --out x.json   # sổ X thử nghiệm, nguyên văn dòng — chỉ token qa_admin/analyst
+  python ssb.py x-log [QT_TCNS_01] [--from 2026-11-01 --to 2026-11-30 --e E2] --out x.json   # sổ X thử nghiệm, nguyên văn dòng, tự gom đủ trang — chỉ token qa_admin/analyst
   python ssb.py x-core QT_TCNS_01 --hash <content_hash> --out core.json   # ảnh core một lần lưu/trình + lưu đồ — chỉ token qa_admin/analyst
   python ssb.py p-sets                        # bộ quy trình P đã phát hành (mới nhất trước) — chỉ token qa_admin
   python ssb.py p P2026T-001 [--build 1]      # một P đủ ruột (bước, RACI, tài liệu, tên lõi đổi) — chỉ token qa_admin
@@ -146,6 +146,10 @@ def main(argv: list[str] | None = None) -> int:
     path, params = ROUTES[a.cmd](a)
     try:
         data = get(path, params)
+        while a.cmd == "x-log" and data.get("next_offset") is not None:  # server trả từng trang — gom đủ sổ
+            more = get(path, {**params, "offset": data["next_offset"]})
+            data = {**more, "rows": data["rows"] + more["rows"], "offset": 0}
+            data["count"] = len(data["rows"])
     except urllib.error.HTTPError as e:
         body = e.read().decode("utf-8", errors="replace")[:300]
         print(f"HTTP {e.code}: {body}", file=sys.stderr)
