@@ -82,6 +82,19 @@ class TestConfig(unittest.TestCase):
 
     def test_default_host(self) -> None:
         self.assertEqual(ssb_config.host(), ssb_config.DEFAULT_HOST)
+        self.assertEqual(ssb_config._first_value(ROOT / "host.txt"), ssb_config.DEFAULT_HOST, "host.txt khớp mặc định (VM)")
+
+    def test_local_file_first_legacy_still_read(self) -> None:
+        tok2 = "ssbm_" + "1" * 40
+        self._tokfile(f"{tok2}\n")
+        self.assertEqual((ssb_config.token(), ssb_config.token_source()), (tok2, "machine_token.txt"))
+        (self.tmpdir / "machine_token.local.txt").write_text(f"# riêng máy\n{TOK}\n", encoding="utf-8")
+        self.assertEqual((ssb_config.token(), ssb_config.token_source()), (TOK, "machine_token.local.txt"))
+        with mock.patch.dict(os.environ, {"SSB_MACHINE_TOKEN": tok2}):
+            self.assertEqual(ssb_config.token_source(), "env")
+
+    def test_local_token_file_ignored_by_git(self) -> None:
+        self.assertIn("*.local.txt", (ROOT / ".gitignore").read_text(encoding="utf-8").splitlines())
 
 
 class TestBridge(unittest.TestCase):
@@ -191,7 +204,9 @@ class TestCli(unittest.TestCase):
         ])
         seen: list = []
         buf = io.StringIO()
-        with mock.patch.object(ssb_config, "token", return_value=TOK), mock.patch.object(ssb_config, "host", return_value="http://h:8765"),              mock.patch("urllib.request.urlopen", side_effect=lambda req, timeout=None: (seen.append(req), FakeResp(next(pages)))[1]),              mock.patch("sys.stdout", buf):
+        with mock.patch.object(ssb_config, "token", return_value=TOK), mock.patch.object(ssb_config, "host", return_value="http://h:8765"), \
+             mock.patch("urllib.request.urlopen", side_effect=lambda req, timeout=None: (seen.append(req), FakeResp(next(pages)))[1]), \
+             mock.patch("sys.stdout", buf):
             rc = ssb.main(["x-log", "--e", "E2"])
         self.assertEqual(rc, 0)
         self.assertEqual([r.full_url for r in seen], ["http://h:8765/api/v1/f3/x-log?e=E2",
