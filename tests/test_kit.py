@@ -211,6 +211,8 @@ class TestCli(unittest.TestCase):
         self.assertEqual(seen[0].full_url, "http://h:8765/api/v1/f3/x-log?from=2026-11-01&to=2026-11-30&e=E2")
         rc, seen, _ = self._run(["x-core", "QT_KTĐBCL_06", "--hash", "ab12"])
         self.assertEqual(seen[0].full_url, "http://h:8765/api/v1/f3/x-core?f3_id=QT_KT%C4%90BCL_06&content_hash=ab12")
+        rc, seen, _ = self._run(["f3b-signals", "--from", "2026-11-01", "--to", "2026-11-30"])
+        self.assertEqual(seen[0].full_url, "http://h:8765/api/v1/f3b/signals?from=2026-11-01&to=2026-11-30")
 
     def test_x_log_gom_du_trang(self) -> None:
         pages = iter([
@@ -243,6 +245,7 @@ class TestCli(unittest.TestCase):
     def test_missing_value(self) -> None:
         with mock.patch("sys.stderr", io.StringIO()):
             self.assertEqual(ssb.main(["role"]), 2)
+            self.assertEqual(ssb.main(["f3b-signals"]), 2)
             self.assertEqual(ssb.main(["duties"]), 2)
             self.assertEqual(ssb.main(["steps"]), 2)
             self.assertEqual(ssb.main(["p"]), 2)
