@@ -59,7 +59,7 @@ def main() -> int:
             _s.reconfigure(encoding="utf-8", errors="replace")
     base, tok = ssb_config.host(), ssb_config.token()
     problem = ssb_config.token_problem()
-    print(f"ssb_mcp_bridge: {base}/mcp · " + (f"token {tok[:9]}…" if not problem else f"CẢNH BÁO: {problem}"), file=sys.stderr, flush=True)
+    print(f"ssb_mcp_bridge: {base}/mcp · " + (f"token OK ({ssb_config.token_source()})" if not problem else f"CẢNH BÁO: {problem}"), file=sys.stderr, flush=True)
     for line in sys.stdin:
         line = line.strip()
         if not line:
