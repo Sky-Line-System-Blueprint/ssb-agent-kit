@@ -40,6 +40,7 @@ SSB là nguồn sự thật về tổ chức và sổ văn bản của Sky-Line.
 | **RACI + biểu mẫu/tài liệu từng bước** của mọi quy trình (bản nháp, một lần gọi cả lô — phân tích theo vai trò/biểu mẫu/đơn vị, ghép với `f3_flow` theo `node_id`); **chỉ token qa_admin/analyst** | `f3_flow_steps {f3_id?}` | `python ssb.py flow-steps --out steps.json` |
 | **Sổ X thử nghiệm** (chỉ số X người soạn F3: dòng E0–E6 nguyên văn, Đ/C/X từng lần lưu/trình/ban hành); **chỉ token qa_admin/analyst** | `f3_x_log {from?, to?, f3_id?, e?, offset?}` | `python ssb.py x-log --from 2026-11-01 --out x.json` |
 | **Ảnh core một lần lưu nháp / trình** (theo `content_hash` của dòng sổ X) kèm lưu đồ dựng lại; **chỉ token qa_admin/analyst** | `f3_x_core {f3_id, content_hash}` | `python ssb.py x-core QT_TCNS_01 --hash <hash> --out core.json` |
+| **Tín hiệu sau import core từ f3_builder** — editor sửa gì sau import, audit bắt gì, bị trả vì sao (vòng cải tiến f3_builder); **chỉ token sysadmin hoặc tài khoản máy `f3b_loop:read`** | `f3b_signals {from, to?}` | `python ssb.py f3b-signals --from 2026-11-01 --out s.json` |
 | **Bộ quy trình P đã phát hành** — danh sách bộ (kỳ, lần dựng, nhãn thí điểm, số P); **chỉ token qa_admin** | `p_sets` | `python ssb.py p-sets` |
 | **Một P đủ ruột** (bước, RACI, tài liệu, luồng; tên đã đổi trong lõi) — mã `P<kỳ>-<số>`; **chỉ token qa_admin** | `p_get {code, build?}` | `python ssb.py p P2026T-001` |
 | **Vị trí VT### trong bộ P** — chủ P, giữ chuỗi, ô R/A/C/I từng bước; **chỉ token qa_admin** | `p_role {vt, ky?, build?}` | `python ssb.py p-role VT008` |
@@ -100,6 +101,9 @@ SSB là nguồn sự thật về tổ chức và sổ văn bản của Sky-Line.
    - `f3_x_core {f3_id, content_hash}` trả `core` + `flow` (nút/cạnh lưu đồ, cùng khuôn `f3_flow`) của đúng lần đó — so hai lần liền nhau để biết người soạn đã sửa gì. E2 trước 25/11/2026 không có ảnh (not found). Bản ban hành đọc bằng `f3_version`.
    - Tính lại Đ, C trên ảnh cũ: tập mã vị trí/đơn vị lấy theo lõi hôm nay, không phải lúc lưu.
    - Sổ là dữ liệu theo người (mã NV, họ tên) — không đưa ra ngoài.
+15. **Tín hiệu sau import (`f3b_signals`)** (SSB ADR-069 amend 26/11) — mỗi bản import core trong cửa sổ ngày (tối đa 120 ngày, 500 mục): `f3b` (commit f3_builder + phiên bản bank đã sinh bản đó), `edits` (chỗ sửa sau import: `sec`, `path`, `old`/`new`, `days` kể từ import), `findings` (mã rule audit), `returns` (trả/từ chối kèm lý do), `status_now`.
+   - Đã khử danh tính: không mã NV, họ tên trong chữ bị che thành `[ẩn]`, chỉnh ở bìa chỉ còn `path`. `importer` là hash đổi mỗi lần gọi — chỉ dùng để đếm số người khác nhau trong **một** phản hồi, không ghép giữa hai lần gọi.
+   - Bản import trước khi SSB có tool này không có `f3b`/`import_hash`.
 
 ## Ví dụ
 

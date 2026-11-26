@@ -23,6 +23,7 @@
   python ssb.py flow-steps [QT_TCNS_01] --out steps.json   # RACI + biểu mẫu từng bước bản nháp, cả lô — chỉ token qa_admin/analyst
   python ssb.py x-log [QT_TCNS_01] [--from 2026-11-01 --to 2026-11-30 --e E2] --out x.json   # sổ X thử nghiệm, nguyên văn dòng, tự gom đủ trang — chỉ token qa_admin/analyst
   python ssb.py x-core QT_TCNS_01 --hash <content_hash> --out core.json   # ảnh core một lần lưu/trình + lưu đồ — chỉ token qa_admin/analyst
+  python ssb.py f3b-signals --from 2026-11-01 [--to 2026-11-30] --out s.json   # tín hiệu sau import core f3_builder (đã khử danh tính) — chỉ sysadmin / máy f3b_loop:read
   python ssb.py p-sets                        # bộ quy trình P đã phát hành (mới nhất trước) — chỉ token qa_admin
   python ssb.py p P2026T-001 [--build 1]      # một P đủ ruột (bước, RACI, tài liệu, tên lõi đổi) — chỉ token qa_admin
   python ssb.py p-role VT008 [--ky 2026T --build 1]   # vị trí → có mặt ở P nào, vai gì — chỉ token qa_admin
@@ -89,6 +90,7 @@ ROUTES = {
     "flow-steps": lambda a: ("/api/v1/f3/flow/steps", {"f3_id": a.value}),
     "x-log": lambda a: ("/api/v1/f3/x-log", {"from": a.date_from, "to": a.date_to, "f3_id": a.value, "e": a.e}),
     "x-core": lambda a: ("/api/v1/f3/x-core", {"f3_id": a.value, "content_hash": a.hash}),
+    "f3b-signals": lambda a: ("/api/v1/f3b/signals", {"from": a.date_from, "to": a.date_to}),
     "p-sets": lambda a: ("/api/v1/p/sets", None),
     "p": lambda a: (f"/api/v1/p/items/{_q(a.value)}", {"build": a.build}),
     "p-role": lambda a: (f"/api/v1/p/roles/{_q(a.value)}", {"ky": a.ky, "build": a.build}),
@@ -112,8 +114,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--level", choices=["f0", "f1", "f2"], default=None, help="functions: chỉ một tầng")
     ap.add_argument("--ky", default=None, help="p-role, p-report: kỳ của bộ P (bỏ = bộ phát hành gần nhất)")
     ap.add_argument("--build", type=int, default=None, help="p, p-role, p-report: lần dựng (p-role/p-report cần kèm --ky)")
-    ap.add_argument("--from", dest="date_from", default=None, help="x-log: từ ngày YYYY-MM-DD (giờ Việt Nam, gồm ngày này)")
-    ap.add_argument("--to", dest="date_to", default=None, help="x-log: tới ngày YYYY-MM-DD (giờ Việt Nam, gồm ngày này)")
+    ap.add_argument("--from", dest="date_from", default=None, help="x-log, f3b-signals: từ ngày YYYY-MM-DD (x-log: giờ Việt Nam, gồm ngày này)")
+    ap.add_argument("--to", dest="date_to", default=None, help="x-log, f3b-signals: tới ngày YYYY-MM-DD (x-log: giờ Việt Nam, gồm ngày này)")
     ap.add_argument("--e", default=None, help="x-log: một sự kiện E0…E6")
     ap.add_argument("--hash", default=None, help="x-core: content_hash của dòng sổ X")
     ap.add_argument("--out", default=None, help="ghi JSON ra file UTF-8 thay vì in (dữ liệu lớn: flow, flow-steps, x-log, p-report)")
@@ -139,6 +141,9 @@ def main(argv: list[str] | None = None) -> int:
             return 3
     if a.cmd in ("role", "owner", "combo", "docs", "forms", "doc", "form", "duties", "impact", "version", "p", "p-role") and not a.value:
         print(f"thiếu tham số: python ssb.py {a.cmd} \"<giá trị>\"", file=sys.stderr)
+        return 2
+    if a.cmd == "f3b-signals" and not a.date_from:
+        print("thiếu tham số: python ssb.py f3b-signals --from YYYY-MM-DD [--to YYYY-MM-DD]", file=sys.stderr)
         return 2
     if a.cmd == "x-core" and not (a.value and a.hash):
         print("thiếu tham số: python ssb.py x-core QT_... --hash <content_hash>", file=sys.stderr)
